@@ -326,11 +326,10 @@ export default function AdminPage() {
       const koku = kokular.find(k => k.id === kokuId);
       if (!koku) return false;
 
-      // İlk fotoğrafı ana fotoğraf olarak ayarla
+      // Fotoğrafları güncelle
       const yeniKoku = { 
         ...koku, 
-        fotograflar,
-        ana_fotograf: fotograflar[0]?.url || '' 
+        fotograflar
       };
 
       const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/kokular/${kokuId}`, {
@@ -345,6 +344,9 @@ export default function AdminPage() {
         const hataMetni = await response.text();
         throw new Error(`Sıralama güncellenemedi: ${hataMetni}`);
       }
+
+      // İlk fotoğrafı ana fotoğraf olarak ayarla
+      await anaFotografSec(kokuId, fotograflar[0]?.url || '');
 
       const guncelKoku = await response.json();
       setKokular(prevKokular => prevKokular.map(k => k.id === kokuId ? guncelKoku : k));
