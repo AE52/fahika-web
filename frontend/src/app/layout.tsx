@@ -1,6 +1,6 @@
 'use client';
 
-import { Inter } from 'next/font/google';
+import { Inter, Playfair_Display } from 'next/font/google';
 import './globals.css';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
@@ -9,6 +9,10 @@ import { CartProvider } from '@/context/CartContext';
 import { usePathname } from 'next/navigation';
 
 const inter = Inter({ subsets: ['latin'] });
+const playfair = Playfair_Display({
+  subsets: ['latin'],
+  display: 'swap',
+});
 
 export default function RootLayout({
   children,
@@ -19,7 +23,7 @@ export default function RootLayout({
   const isAdminPage = pathname?.startsWith('/admin');
 
   return (
-    <html lang="tr">
+    <html lang="tr" className={playfair.className}>
       <body className={inter.className}>
         <CartProvider>
           <div className="flex flex-col min-h-screen">

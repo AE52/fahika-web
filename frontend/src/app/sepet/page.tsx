@@ -3,46 +3,43 @@
 import { useCart } from '@/context/CartContext';
 import Image from 'next/image';
 import Link from 'next/link';
-import { FaTrash, FaWhatsapp } from 'react-icons/fa';
-import { motion } from 'framer-motion';
+import { FiTrash2, FiMinus, FiPlus } from 'react-icons/fi';
 
 export default function SepetSayfasi() {
-  const { cart, removeFromCart, updateQuantity, totalPrice } = useCart();
+  const { cart, removeFromCart, updateQuantity } = useCart();
+
+  const toplamTutar = cart.reduce((total, item) => total + item.fiyat * item.miktar, 0);
 
   if (cart.length === 0) {
     return (
-      <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div className="flex flex-col items-center justify-center min-h-[400px] text-center">
-          <h1 className="text-3xl font-light mb-4">Sepetiniz Boş</h1>
-          <p className="text-gray-600 mb-8">Henüz sepetinize ürün eklemediniz.</p>
-          <Link
-            href="/"
-            className="px-8 py-3 bg-black text-white rounded-lg hover:bg-gray-900 transition-colors"
-          >
-            Alışverişe Başla
-          </Link>
-        </div>
+      <div className="min-h-[60vh] flex flex-col items-center justify-center px-4">
+        <h1 className="text-2xl font-medium mb-4">Sepetiniz Boş</h1>
+        <p className="text-gray-500 mb-8">Sepetinizde henüz ürün bulunmuyor.</p>
+        <Link
+          href="/"
+          className="bg-black text-white px-8 py-3 rounded-lg hover:bg-gray-900 transition-colors"
+        >
+          Alışverişe Başla
+        </Link>
       </div>
     );
   }
 
   return (
-    <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 py-12">
-      <h1 className="text-3xl font-light mb-8">Sepetim</h1>
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <h1 className="text-2xl font-medium mb-8">Sepetim ({cart.length} Ürün)</h1>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
+      <div className="lg:grid lg:grid-cols-12 lg:gap-8">
         {/* Ürün Listesi */}
-        <div className="lg:col-span-2 space-y-6">
-          {cart.map((item) => (
-            <motion.div
-              key={item.id}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -20 }}
-              className="flex gap-6 p-4 bg-white rounded-lg shadow-sm"
-            >
-              <Link href={`/kokularimiz/${item.slug}`} className="shrink-0">
-                <div className="relative w-24 h-32 bg-gray-100 rounded-lg overflow-hidden">
+        <div className="lg:col-span-8">
+          <div className="space-y-6">
+            {cart.map((item) => (
+              <div
+                key={item.id}
+                className="flex flex-col sm:flex-row items-start sm:items-center gap-4 p-4 bg-white rounded-lg shadow-sm"
+              >
+                {/* Ürün Görseli */}
+                <div className="relative w-full sm:w-24 h-32 sm:h-24 bg-gray-50 rounded-lg overflow-hidden">
                   <Image
                     src={item.ana_fotograf}
                     alt={item.isim}
@@ -50,83 +47,80 @@ export default function SepetSayfasi() {
                     className="object-cover"
                   />
                 </div>
-              </Link>
 
-              <div className="flex-grow">
-                <Link href={`/kokularimiz/${item.slug}`}>
-                  <h3 className="text-lg font-light hover:text-gray-600 transition-colors">
+                {/* Ürün Bilgileri */}
+                <div className="flex-grow">
+                  <Link
+                    href={`/${item.kategori}/${item.slug}`}
+                    className="text-lg font-medium hover:text-gray-700 transition-colors"
+                  >
                     {item.isim}
-                  </h3>
-                </Link>
-                <p className="text-sm text-gray-500 mb-4">
-                  {item.kategori === 'parfum' ? 'Parfüm' : 'Oda Kokusu'} • {item.hacim}
-                </p>
+                  </Link>
+                  <p className="text-gray-500 text-sm mt-1">{item.hacim}</p>
+                </div>
 
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-4">
-                    <div className="flex items-center border rounded-lg">
-                      <button
-                        onClick={() => updateQuantity(item.id, Math.max(0, item.miktar - 1))}
-                        className="px-3 py-1 text-gray-600 hover:text-black transition-colors"
-                      >
-                        -
-                      </button>
-                      <span className="px-3 py-1 border-x">{item.miktar}</span>
-                      <button
-                        onClick={() => updateQuantity(item.id, item.miktar + 1)}
-                        className="px-3 py-1 text-gray-600 hover:text-black transition-colors"
-                      >
-                        +
-                      </button>
-                    </div>
-                    <button
-                      onClick={() => removeFromCart(item.id)}
-                      className="text-red-500 hover:text-red-600 transition-colors"
-                    >
-                      <FaTrash />
-                    </button>
-                  </div>
-                  <span className="text-lg">{item.fiyat * item.miktar} TL</span>
+                {/* Miktar Kontrolü */}
+                <div className="flex items-center gap-2 mt-4 sm:mt-0">
+                  <button
+                    onClick={() => updateQuantity(item.id, Math.max(1, item.miktar - 1))}
+                    className="p-2 text-gray-500 hover:text-gray-700 transition-colors"
+                    aria-label="Azalt"
+                  >
+                    <FiMinus className="w-4 h-4" />
+                  </button>
+                  <span className="w-8 text-center">{item.miktar}</span>
+                  <button
+                    onClick={() => updateQuantity(item.id, item.miktar + 1)}
+                    className="p-2 text-gray-500 hover:text-gray-700 transition-colors"
+                    aria-label="Artır"
+                  >
+                    <FiPlus className="w-4 h-4" />
+                  </button>
+                </div>
+
+                {/* Fiyat ve Silme */}
+                <div className="flex items-center gap-4 mt-4 sm:mt-0">
+                  <span className="font-medium">
+                    {(item.fiyat * item.miktar).toLocaleString('tr-TR')} ₺
+                  </span>
+                  <button
+                    onClick={() => removeFromCart(item.id)}
+                    className="p-2 text-gray-500 hover:text-red-600 transition-colors"
+                    aria-label="Sil"
+                  >
+                    <FiTrash2 className="w-5 h-5" />
+                  </button>
                 </div>
               </div>
-            </motion.div>
-          ))}
+            ))}
+          </div>
         </div>
 
         {/* Sipariş Özeti */}
-        <div className="lg:col-span-1">
-          <div className="sticky top-8 space-y-6 p-6 bg-white rounded-lg shadow-sm">
-            <h2 className="text-xl font-medium">Sipariş Özeti</h2>
+        <div className="lg:col-span-4 mt-8 lg:mt-0">
+          <div className="bg-white p-6 rounded-lg shadow-sm">
+            <h2 className="text-lg font-medium mb-4">Sipariş Özeti</h2>
             
-            <div className="space-y-2">
-              <div className="flex justify-between text-lg">
-                <span>Toplam</span>
-                <span className="font-medium">{totalPrice} TL</span>
+            <div className="space-y-3">
+              <div className="flex justify-between text-gray-600">
+                <span>Ara Toplam</span>
+                <span>{toplamTutar.toLocaleString('tr-TR')} ₺</span>
+              </div>
+              <div className="flex justify-between text-gray-600">
+                <span>Kargo</span>
+                <span>Ücretsiz</span>
+              </div>
+              <div className="border-t pt-3 mt-3">
+                <div className="flex justify-between font-medium text-lg">
+                  <span>Toplam</span>
+                  <span>{toplamTutar.toLocaleString('tr-TR')} ₺</span>
+                </div>
               </div>
             </div>
 
-            <Link
-              href={`https://wa.me/905555555555?text=${encodeURIComponent(
-                `Merhaba, aşağıdaki ürünleri sipariş etmek istiyorum:\n\n${cart
-                  .map(
-                    (item) =>
-                      `${item.isim} (${item.hacim}) - ${item.miktar} adet - ${
-                        item.fiyat * item.miktar
-                      } TL`
-                  )
-                  .join('\n')}\n\nToplam Tutar: ${totalPrice} TL`
-              )}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center justify-center gap-2 w-full py-4 bg-[#25D366] text-white rounded-lg hover:bg-[#20BD5C] transition-colors"
-            >
-              <FaWhatsapp className="text-xl" />
-              WhatsApp ile Sipariş Ver
-            </Link>
-
-            <p className="text-sm text-gray-500 text-center">
-              WhatsApp üzerinden siparişinizi iletebilirsiniz.
-            </p>
+            <button className="w-full bg-black text-white py-3 rounded-lg mt-6 hover:bg-gray-900 transition-colors">
+              Ödemeye Geç
+            </button>
           </div>
         </div>
       </div>

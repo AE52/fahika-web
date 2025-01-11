@@ -8,25 +8,25 @@ interface CartItem {
   isim: string;
   ana_fotograf: string;
   fiyat: number;
+  miktar: number;
   kategori: string;
   hacim: string;
-  miktar: number;
 }
 
 interface CartContextType {
   cart: CartItem[];
+  isCartOpen: boolean;
   addToCart: (item: Omit<CartItem, 'miktar'>) => void;
   removeFromCart: (id: string) => void;
   updateQuantity: (id: string, quantity: number) => void;
-  clearCart: () => void;
-  totalItems: number;
-  totalPrice: number;
+  setIsCartOpen: (isOpen: boolean) => void;
 }
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
 
 export function CartProvider({ children }: { children: React.ReactNode }) {
   const [cart, setCart] = useState<CartItem[]>([]);
+  const [isCartOpen, setIsCartOpen] = useState(false);
 
   useEffect(() => {
     const savedCart = localStorage.getItem('cart');
@@ -51,6 +51,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       }
       return [...prevCart, { ...item, miktar: 1 }];
     });
+    setIsCartOpen(true);
   };
 
   const removeFromCart = (id: string) => {
@@ -58,34 +59,19 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   };
 
   const updateQuantity = (id: string, quantity: number) => {
-    setCart(prevCart => {
-      if (quantity === 0) {
-        return prevCart.filter(item => item.id !== id);
-      }
-      return prevCart.map(item =>
+    if (quantity < 1) return;
+    setCart(prevCart =>
+      prevCart.map(item =>
         item.id === id ? { ...item, miktar: quantity } : item
-      );
-    });
+      )
+    );
   };
 
-  const clearCart = () => {
-    setCart([]);
-  };
-
-  const totalItems = cart.reduce((total, item) => total + item.miktar, 0);
-  const totalPrice = cart.reduce((total, item) => total + (item.fiyat * item.miktar), 0);
-
-  const value = {
-    cart,
-    addToCart,
-    removeFromCart,
-    updateQuantity,
-    clearCart,
-    totalItems,
-    totalPrice,
-  };
-
-  return <CartContext.Provider value={value}>{children}</CartContext.Provider>;
+  return (
+    <CartContext.Provider value={{ cart, isCartOpen, setIsCartOpen, addToCart, removeFromCart, updateQuantity }}>
+      {children}
+    </CartContext.Provider>
+  );
 }
 
 export function useCart() {

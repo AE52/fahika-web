@@ -21,10 +21,14 @@ class MongoHelper:
     @staticmethod
     def find_one(collection: str, query: Dict) -> Optional[Dict]:
         """Tek bir döküman bulur"""
-        result = getattr(db, collection).find_one(query)
-        if result:
-            return MongoHelper.object_id_to_str(result)
-        return None
+        try:
+            result = getattr(db, collection).find_one(query)
+            if result:
+                result['id'] = str(result.pop('_id'))
+            return result
+        except Exception as e:
+            print(f"MongoDB find_one error: {str(e)}")
+            return None
 
     @staticmethod
     def find_many(collection: str, query: Dict = None, 
@@ -44,8 +48,12 @@ class MongoHelper:
     @staticmethod
     def insert_one(collection: str, document: Dict) -> Optional[str]:
         """Tek bir döküman ekler"""
-        result = getattr(db, collection).insert_one(document)
-        return str(result.inserted_id) if result.inserted_id else None
+        try:
+            result = getattr(db, collection).insert_one(document)
+            return str(result.inserted_id)
+        except Exception as e:
+            print(f"MongoDB insert_one error: {str(e)}")
+            return None
 
     @staticmethod
     def insert_many(collection: str, documents: List[Dict]) -> List[str]:
@@ -56,8 +64,12 @@ class MongoHelper:
     @staticmethod
     def update_one(collection: str, query: Dict, update: Dict) -> bool:
         """Tek bir dökümanı günceller"""
-        result = getattr(db, collection).update_one(query, {'$set': update})
-        return result.modified_count > 0
+        try:
+            result = getattr(db, collection).update_one(query, {'$set': update})
+            return result.modified_count > 0
+        except Exception as e:
+            print(f"MongoDB update_one error: {str(e)}")
+            return False
 
     @staticmethod
     def update_many(collection: str, query: Dict, update: Dict) -> int:
@@ -68,8 +80,12 @@ class MongoHelper:
     @staticmethod
     def delete_one(collection: str, query: Dict) -> bool:
         """Tek bir dökümanı siler"""
-        result = getattr(db, collection).delete_one(query)
-        return result.deleted_count > 0
+        try:
+            result = getattr(db, collection).delete_one(query)
+            return result.deleted_count > 0
+        except Exception as e:
+            print(f"MongoDB delete_one error: {str(e)}")
+            return False
 
     @staticmethod
     def delete_many(collection: str, query: Dict) -> int:
@@ -80,7 +96,13 @@ class MongoHelper:
     @staticmethod
     def count_documents(collection: str, query: Dict = None) -> int:
         """Döküman sayısını döndürür"""
-        return getattr(db, collection).count_documents(query or {})
+        try:
+            if query is None:
+                query = {}
+            return getattr(db, collection).count_documents(query)
+        except Exception as e:
+            print(f"MongoDB count_documents error: {str(e)}")
+            return 0
 
     @staticmethod
     def aggregate(collection: str, pipeline: List[Dict]) -> List[Dict]:
