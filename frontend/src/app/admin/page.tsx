@@ -199,49 +199,59 @@ export default function AdminPage() {
   };
 
   // Koku güncelleme
-  const kokuGuncelle = async (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    if (!seciliKoku) return;
-
+  const kokuGuncelle = async (id: string, yeniVeriler: Partial<Koku>) => {
     try {
-      console.log('Gönderilen veri:', seciliKoku);
-      
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/kokular/${seciliKoku.id}`, {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/kokular/${id}`, {
         method: 'PUT',
         headers: {
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
         },
-        body: JSON.stringify(seciliKoku)
+        body: JSON.stringify(yeniVeriler),
       });
 
       if (!response.ok) {
-        const hataMetni = await response.text();
-        throw new Error(`Koku güncellenemedi: ${hataMetni}`);
+        throw new Error('Koku güncellenirken bir hata oluştu');
       }
 
-      const guncelKoku = await response.json();
-      setKokular(kokular.map(k => k.id === seciliKoku.id ? guncelKoku : k));
-      setDuzenlemeModu(null);
-      setSeciliKoku(null);
+      const data = await response.json();
+      setKokular(prevKokular => 
+        prevKokular.map(koku => 
+          koku.id === id ? { ...koku, ...data.koku } : koku
+        )
+      );
       toast.success('Koku başarıyla güncellendi');
     } catch (error) {
       console.error('Güncelleme hatası:', error);
-      toast.error('Koku güncellenirken bir hata oluştu: ' + (error as Error).message);
+      toast.error('Koku güncellenirken bir hata oluştu');
     }
   };
 
   // Fotoğraf sırası değiştirme
-  const fotografSirasiDegistir = (kokuId: string, fotografIndex: number, yeniSira: number) => {
-    const koku = kokular.find(k => k.id === kokuId);
-    if (!koku || yeniSira < 0 || yeniSira >= koku.fotograflar.length) return;
+  const fotografSirasiDegistir = async (kokuId: string, fotografIndex: number, yeniSira: number) => {
+    try {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/kokular/${kokuId}/fotograf-sirasi`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ fotografIndex, yeniSira }),
+      });
 
-    const yeniFotograflar = [...koku.fotograflar];
-    const temp = yeniFotograflar[fotografIndex];
-    yeniFotograflar[fotografIndex] = yeniFotograflar[yeniSira];
-    yeniFotograflar[yeniSira] = temp;
+      if (!response.ok) {
+        throw new Error('Fotoğraf sırası değiştirilirken bir hata oluştu');
+      }
 
-    const yeniKoku = { ...koku, fotograflar: yeniFotograflar };
-    setKokular(kokular.map(k => k.id === kokuId ? yeniKoku : k));
+      const data = await response.json();
+      setKokular(prevKokular =>
+        prevKokular.map(koku =>
+          koku.id === kokuId ? { ...koku, fotograflar: data.fotograflar } : koku
+        )
+      );
+      toast.success('Fotoğraf sırası güncellendi');
+    } catch (error) {
+      console.error('Sıra değiştirme hatası:', error);
+      toast.error('Fotoğraf sırası değiştirilirken bir hata oluştu');
+    }
   };
 
   // Fotoğraf yükleme
@@ -368,33 +378,30 @@ export default function AdminPage() {
   };
 
   // Ana fotoğraf seçimi için yeni fonksiyon ekle
-  const anaFotografSec = async (kokuId: string, fotografUrl: string) => {
+  const anaFotografSec = async (kokuId: string, fotoUrl: string) => {
     try {
-      const koku = kokular.find(k => k.id === kokuId);
-      if (!koku) return;
-
-      const yeniKoku = { ...koku, ana_fotograf: fotografUrl };
-
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/kokular/${kokuId}`, {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/kokular/${kokuId}/ana-fotograf`, {
         method: 'PUT',
         headers: {
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
         },
-        body: JSON.stringify(yeniKoku)
+        body: JSON.stringify({ ana_fotograf: fotoUrl }),
       });
 
       if (!response.ok) {
-        throw new Error('Ana fotoğraf güncellenemedi');
+        throw new Error('Ana fotoğraf seçilirken bir hata oluştu');
       }
 
-      setKokular(kokular.map(k => k.id === kokuId ? yeniKoku : k));
-      if (seciliKoku?.id === kokuId) {
-        setSeciliKoku(yeniKoku);
-      }
+      const data = await response.json();
+      setKokular(prevKokular =>
+        prevKokular.map(koku =>
+          koku.id === kokuId ? { ...koku, ana_fotograf: data.ana_fotograf } : koku
+        )
+      );
       toast.success('Ana fotoğraf güncellendi');
     } catch (error) {
-      console.error('Ana fotoğraf güncelleme hatası:', error);
-      toast.error('Ana fotoğraf güncellenirken bir hata oluştu');
+      console.error('Ana fotoğraf seçme hatası:', error);
+      toast.error('Ana fotoğraf seçilirken bir hata oluştu');
     }
   };
 

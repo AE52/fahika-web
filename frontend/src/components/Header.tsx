@@ -21,9 +21,7 @@ export default function Header() {
   const pathname = usePathname();
   const { cart, isCartOpen, setIsCartOpen, removeFromCart, updateQuantity } = useCart();
   const [isSearchOpen, setIsSearchOpen] = useState(false);
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
-  const [currentBannerIndex, setCurrentBannerIndex] = useState(0);
   const [searchResults, setSearchResults] = useState<Array<{
     id: string;
     slug: string;
@@ -33,6 +31,8 @@ export default function Header() {
     kategori: string;
     hacim: string;
   }>>([]);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [currentBannerIndex, setCurrentBannerIndex] = useState(0);
   const [isSearching, setIsSearching] = useState(false);
   const [allProducts, setAllProducts] = useState<Array<{
     id: string;
