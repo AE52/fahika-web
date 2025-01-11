@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 export default function AboutPage() {
   return (
@@ -25,7 +25,7 @@ export default function AboutPage() {
         <section className="mb-8">
           <h2 className="text-2xl font-semibold mb-4">Vizyonumuz</h2>
           <p className="text-gray-700 leading-relaxed">
-            Türkiye'nin lider koku markası olarak, müşterilerimize en kaliteli ürünleri 
+            Türkiye&apos;nin lider koku markası olarak, müşterilerimize en kaliteli ürünleri 
             ve en iyi alışveriş deneyimini sunmayı hedefliyoruz.
           </p>
         </section>
