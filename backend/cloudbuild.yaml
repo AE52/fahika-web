@@ -1,0 +1,38 @@
+steps:
+  # Docker imajını build et
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['build', '-t', 'gcr.io/$PROJECT_ID/fahika-backend', '.']
+
+  # İmajı Container Registry'e gönder
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['push', 'gcr.io/$PROJECT_ID/fahika-backend']
+
+  # Cloud Run'a deploy et
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk:slim'
+    entrypoint: gcloud
+    args:
+      - 'run'
+      - 'deploy'
+      - 'fahika-backend'
+      - '--image'
+      - 'gcr.io/$PROJECT_ID/fahika-backend'
+      - '--region'
+      - 'europe-west1'
+      - '--platform'
+      - 'managed'
+      - '--allow-unauthenticated'
+      - '--memory'
+      - '512Mi'
+      - '--set-env-vars'
+      - 'MONGO_URI=${_MONGO_URI},CLOUDINARY_CLOUD_NAME=${_CLOUDINARY_CLOUD_NAME},CLOUDINARY_API_KEY=${_CLOUDINARY_API_KEY},CLOUDINARY_API_SECRET=${_CLOUDINARY_API_SECRET}'
+
+# Servis hesabına gerekli izinleri ver
+options:
+  logging: CLOUD_LOGGING_ONLY
+
+# Ortam değişkenleri
+substitutions:
+  _MONGO_URI: mongodb+srv://ae52:Erenemir1comehacker@cluster0.y5nv8.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0
+  _CLOUDINARY_CLOUD_NAME: dqhheif0c
+  _CLOUDINARY_API_KEY: '164851497378274'
+  _CLOUDINARY_API_SECRET: rKOL5XbXhqbheFG-xahvLsSthh4 
