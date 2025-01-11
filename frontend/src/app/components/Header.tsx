@@ -84,148 +84,112 @@ export default function Header() {
 
           {/* Masaüstü Menü */}
           <nav className="hidden md:flex items-center space-x-8">
-            <Link href="/" className="text-gray-600 hover:text-gray-900">
-              Ana Sayfa
+            <Link href="/kokularimiz" className="text-gray-700 hover:text-gray-900">
+              Kokularımız
             </Link>
-            <Link href="/urunler" className="text-gray-600 hover:text-gray-900">
-              Ürünler
-            </Link>
-            <Link href="/hakkimizda" className="text-gray-600 hover:text-gray-900">
-              Hakkımızda
-            </Link>
-            <Link href="/iletisim" className="text-gray-600 hover:text-gray-900">
-              İletişim
-            </Link>
-          </nav>
-
-          {/* Arama ve Sepet */}
-          <div className="flex items-center space-x-4">
-            {/* Arama */}
-            <div className="relative" ref={searchRef}>
-              <button
-                onClick={() => setIsSearchOpen(!isSearchOpen)}
-                className="p-2 text-gray-600 hover:text-gray-900"
-              >
-                <FaSearch className="w-5 h-5" />
-              </button>
-
-              {isSearchOpen && (
-                <div className="absolute right-0 mt-2 w-96 bg-white rounded-lg shadow-lg overflow-hidden z-50">
-                  <form onSubmit={handleSearch} className="p-4">
-                    <div className="relative">
-                      <input
-                        type="text"
-                        value={searchTerm}
-                        onChange={(e) => setSearchTerm(e.target.value)}
-                        placeholder="Ürün ara..."
-                        className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-500"
-                        autoFocus
-                      />
-                      <button
-                        type="button"
-                        onClick={() => setIsSearchOpen(false)}
-                        className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
-                      >
-                        <FaTimes className="w-5 h-5" />
-                      </button>
-                    </div>
-
-                    {isLoading ? (
-                      <div className="flex justify-center py-4">
-                        <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-gray-900"></div>
-                      </div>
-                    ) : searchResults.length > 0 ? (
-                      <div className="mt-4 space-y-2 max-h-96 overflow-auto">
-                        {searchResults.map((result) => (
-                          <Link
-                            key={result.id}
-                            href={`/urunler/${result.id}`}
-                            onClick={() => setIsSearchOpen(false)}
-                            className="flex items-center p-2 hover:bg-gray-50 rounded-lg transition-colors"
-                          >
-                            <div className="relative w-12 h-12 rounded-md overflow-hidden">
-                              <Image
-                                src={result.image || '/placeholder.jpg'}
-                                alt={result.name}
-                                fill
-                                className="object-cover"
-                              />
-                            </div>
-                            <div className="ml-3 flex-1">
-                              <h3 className="text-sm font-medium text-gray-900">{result.name}</h3>
-                              <p className="text-sm text-gray-500">{result.category}</p>
-                            </div>
-                            <span className="text-sm font-medium text-gray-900">{result.price} TL</span>
-                          </Link>
-                        ))}
-                      </div>
-                    ) : searchTerm.length >= 2 ? (
-                      <p className="text-center py-4 text-gray-500">Sonuç bulunamadı</p>
-                    ) : null}
-                  </form>
-                </div>
-              )}
-            </div>
-
-            {/* Sepet */}
+            <button
+              onClick={() => setIsSearchOpen(true)}
+              className="text-gray-700 hover:text-gray-900"
+            >
+              <FaSearch className="h-5 w-5" />
+            </button>
             <button
               onClick={() => setIsCartOpen(true)}
-              className="relative p-2 text-gray-600 hover:text-gray-900"
+              className="text-gray-700 hover:text-gray-900 relative"
             >
-              <FaShoppingCart className="w-5 h-5" />
+              <FaShoppingCart className="h-5 w-5" />
               {totalItems > 0 && (
-                <span className="absolute -top-1 -right-1 bg-primary text-white text-xs w-5 h-5 rounded-full flex items-center justify-center">
+                <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
                   {totalItems}
                 </span>
               )}
             </button>
+          </nav>
 
-            {/* Mobil Menü Butonu */}
+          {/* Mobil Menü */}
+          <div className="md:hidden flex items-center space-x-4">
+            <button
+              onClick={() => setIsSearchOpen(true)}
+              className="text-gray-700 hover:text-gray-900"
+            >
+              <FaSearch className="h-5 w-5" />
+            </button>
+            <button
+              onClick={() => setIsCartOpen(true)}
+              className="text-gray-700 hover:text-gray-900 relative"
+            >
+              <FaShoppingCart className="h-5 w-5" />
+              {totalItems > 0 && (
+                <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                  {totalItems}
+                </span>
+              )}
+            </button>
             <button
               onClick={() => setIsMenuOpen(!isMenuOpen)}
-              className="md:hidden text-gray-600 hover:text-gray-900"
+              className="text-gray-700 hover:text-gray-900"
             >
-              {isMenuOpen ? <FaTimes size={24} /> : <FaBars size={24} />}
+              {isMenuOpen ? (
+                <FaTimes className="h-5 w-5" />
+              ) : (
+                <FaBars className="h-5 w-5" />
+              )}
             </button>
           </div>
         </div>
-
-        {/* Mobil Menü */}
-        {isMenuOpen && (
-          <div className="md:hidden py-4 border-t border-gray-200">
-            <nav className="flex flex-col space-y-4">
-              <Link
-                href="/"
-                className="text-gray-600 hover:text-gray-900"
-                onClick={() => setIsMenuOpen(false)}
-              >
-                Ana Sayfa
-              </Link>
-              <Link
-                href="/urunler"
-                className="text-gray-600 hover:text-gray-900"
-                onClick={() => setIsMenuOpen(false)}
-              >
-                Ürünler
-              </Link>
-              <Link
-                href="/hakkimizda"
-                className="text-gray-600 hover:text-gray-900"
-                onClick={() => setIsMenuOpen(false)}
-              >
-                Hakkımızda
-              </Link>
-              <Link
-                href="/iletisim"
-                className="text-gray-600 hover:text-gray-900"
-                onClick={() => setIsMenuOpen(false)}
-              >
-                İletişim
-              </Link>
-            </nav>
-          </div>
-        )}
       </div>
+
+      {/* Sepet Modal */}
+      {isCartOpen && (
+        <div className="fixed inset-0 z-50 overflow-hidden">
+          <div className="absolute inset-0 bg-black bg-opacity-50" onClick={() => setIsCartOpen(false)} />
+          <div className="fixed inset-y-0 right-0 max-w-md w-full bg-white shadow-xl">
+            <div className="flex justify-between items-center p-4 border-b">
+              <h2 className="text-lg font-medium">Sepetim ({totalItems})</h2>
+              <button onClick={() => setIsCartOpen(false)} className="text-gray-500 hover:text-gray-700">
+                <FaTimes className="h-5 w-5" />
+              </button>
+            </div>
+            {/* Sepet içeriği buraya gelecek */}
+          </div>
+        </div>
+      )}
+
+      {/* Mobil Menü */}
+      {isMenuOpen && (
+        <div className="md:hidden py-4 border-t border-gray-200">
+          <nav className="flex flex-col space-y-4">
+            <Link
+              href="/"
+              className="text-gray-600 hover:text-gray-900"
+              onClick={() => setIsMenuOpen(false)}
+            >
+              Ana Sayfa
+            </Link>
+            <Link
+              href="/urunler"
+              className="text-gray-600 hover:text-gray-900"
+              onClick={() => setIsMenuOpen(false)}
+            >
+              Ürünler
+            </Link>
+            <Link
+              href="/hakkimizda"
+              className="text-gray-600 hover:text-gray-900"
+              onClick={() => setIsMenuOpen(false)}
+            >
+              Hakkımızda
+            </Link>
+            <Link
+              href="/iletisim"
+              className="text-gray-600 hover:text-gray-900"
+              onClick={() => setIsMenuOpen(false)}
+            >
+              İletişim
+            </Link>
+          </nav>
+        </div>
+      )}
     </header>
   );
 } 
