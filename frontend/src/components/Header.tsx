@@ -8,7 +8,6 @@ import { FiSearch, FiShoppingCart, FiMinus, FiPlus, FiTrash2, FiMenu } from 'rea
 import { IoClose } from 'react-icons/io5';
 import { FaWhatsapp } from 'react-icons/fa';
 import Image from 'next/image';
-import { toast } from 'react-hot-toast';
 
 // Üst banner mesajları
 const bannerMessages = [
