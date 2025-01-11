@@ -1,96 +1,97 @@
-from flask import Flask, request, jsonify
+from flask import Flask, jsonify, request
 from flask_cors import CORS
-from pymongo import MongoClient
-import cloudinary
-import cloudinary.uploader
 import os
-from datetime import datetime
-from bson import ObjectId
+from config import Config
+from utils.mongo_helper import MongoHelper
+from utils.cloudinary_helper import upload_image, delete_image, upload_multiple_images
 
 app = Flask(__name__)
 CORS(app)
 
-# MongoDB bağlantısı
-MONGO_URI = os.getenv('MONGO_URI', 'mongodb+srv://ae52:Erenemir1comehacker@cluster0.y5nv8.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0')
-client = MongoClient(MONGO_URI)
-db = client.fahika_db
+# Yapılandırmayı yükle
+app.config.from_object(Config)
 
-# Cloudinary yapılandırması
-cloudinary.config(
-    cloud_name = os.getenv('CLOUDINARY_CLOUD_NAME', 'dqhheif0c'),
-    api_key = os.getenv('CLOUDINARY_API_KEY', '164851497378274'),
-    api_secret = os.getenv('CLOUDINARY_API_SECRET', 'rKOL5XbXhqbheFG-xahvLsSthh4')
-)
-
-def koku_to_dict(koku):
-    return {
-        'id': str(koku['_id']),
-        'isim': koku.get('isim', ''),
-        'slug': koku.get('slug', ''),
-        'fotograflar': koku.get('fotograflar', []),
-        'ana_fotograf': koku.get('ana_fotograf', ''),
-        'fiyat': koku.get('fiyat', 0),
-        'aciklama': koku.get('aciklama', ''),
-        'kategori': koku.get('kategori', ''),
-        'stok': koku.get('stok', 0),
-        'koku_notlari': koku.get('koku_notlari', ''),
-        'hacim': koku.get('hacim', ''),
-        'created_at': koku.get('created_at', datetime.now())
-    }
-
+# Health check endpoint'i
 @app.route('/health')
 def health_check():
-    return jsonify({'status': 'healthy'}), 200
+    return jsonify({"status": "healthy"}), 200
 
-@app.route('/api/kokular', methods=['GET'])
-def get_kokular():
-    try:
-        kokular = list(db.kokular.find().sort('created_at', -1))
-        return jsonify([koku_to_dict(koku) for koku in kokular]), 200
-    except Exception as e:
-        print(f"Hata: {str(e)}")
-        return jsonify({'error': str(e)}), 500
+# Ana endpoint
+@app.route('/')
+def home():
+    return jsonify({"message": "Fahika API'ye Hoş Geldiniz"}), 200
 
-@app.route('/api/kokular/slug/<slug>', methods=['GET'])
-def get_koku_by_slug(slug):
+# Ürünler endpoint'i
+@app.route('/api/urunler', methods=['GET'])
+def get_urunler():
     try:
-        koku = db.kokular.find_one({'slug': slug})
-        if koku:
-            return jsonify(koku_to_dict(koku)), 200
-        return jsonify({'error': 'Koku bulunamadı'}), 404
+        urunler = MongoHelper.find_many('urunler')
+        return jsonify({"urunler": urunler}), 200
     except Exception as e:
-        return jsonify({'error': str(e)}), 500
+        return jsonify({"error": str(e)}), 500
 
-@app.route('/api/kokular', methods=['POST'])
-def create_koku():
+@app.route('/api/urunler', methods=['POST'])
+def create_urun():
     try:
-        koku = request.json
-        koku['created_at'] = datetime.now()
-        result = db.kokular.insert_one(koku)
-        koku['_id'] = result.inserted_id
-        return jsonify(koku_to_dict(koku)), 201
+        data = request.json
+        urun_id = MongoHelper.insert_one('urunler', data)
+        return jsonify({"id": urun_id}), 201
     except Exception as e:
-        return jsonify({'error': str(e)}), 500
+        return jsonify({"error": str(e)}), 500
 
-@app.route('/api/kokular/<id>', methods=['PUT'])
-def update_koku(id):
+@app.route('/api/urunler/<id>', methods=['GET'])
+def get_urun(id):
     try:
-        koku = request.json
-        koku['updated_at'] = datetime.now()
-        db.kokular.update_one({'_id': ObjectId(id)}, {'$set': koku})
-        return jsonify({'message': 'Koku güncellendi'}), 200
+        urun = MongoHelper.find_one('urunler', {"_id": MongoHelper.str_to_object_id(id)})
+        if urun:
+            return jsonify(urun), 200
+        return jsonify({"error": "Ürün bulunamadı"}), 404
     except Exception as e:
-        return jsonify({'error': str(e)}), 500
+        return jsonify({"error": str(e)}), 500
 
-@app.route('/api/kokular/<id>', methods=['DELETE'])
-def delete_koku(id):
+@app.route('/api/urunler/<id>', methods=['PUT'])
+def update_urun(id):
     try:
-        result = db.kokular.delete_one({'_id': ObjectId(id)})
-        if result.deleted_count:
-            return jsonify({'message': 'Koku silindi'}), 200
-        return jsonify({'error': 'Koku bulunamadı'}), 404
+        data = request.json
+        success = MongoHelper.update_one('urunler', 
+                                       {"_id": MongoHelper.str_to_object_id(id)}, 
+                                       data)
+        if success:
+            return jsonify({"message": "Ürün güncellendi"}), 200
+        return jsonify({"error": "Ürün bulunamadı"}), 404
     except Exception as e:
-        return jsonify({'error': str(e)}), 500
+        return jsonify({"error": str(e)}), 500
+
+@app.route('/api/urunler/<id>', methods=['DELETE'])
+def delete_urun(id):
+    try:
+        success = MongoHelper.delete_one('urunler', 
+                                       {"_id": MongoHelper.str_to_object_id(id)})
+        if success:
+            return jsonify({"message": "Ürün silindi"}), 200
+        return jsonify({"error": "Ürün bulunamadı"}), 404
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+# Resim yükleme endpoint'i
+@app.route('/api/upload', methods=['POST'])
+def upload_file():
+    try:
+        if 'file' not in request.files:
+            return jsonify({"error": "Dosya bulunamadı"}), 400
+            
+        file = request.files['file']
+        if file.filename == '':
+            return jsonify({"error": "Dosya seçilmedi"}), 400
+            
+        if file:
+            folder = request.form.get('folder', 'urunler')
+            result = upload_image(file, folder)
+            if result:
+                return jsonify(result), 200
+            return jsonify({"error": "Yükleme başarısız"}), 500
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 8080))

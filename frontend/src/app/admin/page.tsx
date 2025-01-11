@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { supabase } from '@/lib/supabase';
 import Image from 'next/image';
 import { FaEdit, FaTrash, FaPlus, FaUpload, FaHome, FaSignOutAlt, FaSearch, FaTimes, FaCheck, FaFilter } from 'react-icons/fa';
 import { toast } from 'react-hot-toast';

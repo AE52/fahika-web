@@ -6,12 +6,11 @@ WORKDIR /app
 # Sistem bağımlılıklarını yükle
 RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
-    curl \
     && rm -rf /var/lib/apt/lists/*
 
 # Python bağımlılıklarını kopyala ve yükle
 COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt gunicorn
+RUN pip install --no-cache-dir -r requirements.txt
 
 # Production aşaması
 FROM python:3.9-slim
@@ -20,7 +19,7 @@ WORKDIR /app
 
 # Gerekli sistem paketlerini yükle
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    curl \
+    wget \
     && rm -rf /var/lib/apt/lists/*
 
 # Python paketlerini kopyala
@@ -33,14 +32,15 @@ COPY . .
 ENV FLASK_APP=app.py \
     FLASK_ENV=production \
     PORT=8080 \
-    PYTHONUNBUFFERED=1
+    PYTHONUNBUFFERED=1 \
+    HOST=0.0.0.0
 
 # Port 8080'i dinle
 EXPOSE 8080
 
 # Health check ekle
 HEALTHCHECK --interval=30s --timeout=30s --start-period=5s --retries=3 \
-  CMD curl -f http://localhost:8080/health || exit 1
+  CMD wget --no-verbose --tries=1 --spider http://localhost:8080/health || exit 1
 
 # Uygulamayı başlat
-CMD ["gunicorn", "--bind", ":8080", "--workers", "4", "--threads", "8", "--timeout", "0", "app:app"] 
+CMD exec gunicorn --bind :$PORT --workers 1 --threads 8 --timeout 0 app:app 

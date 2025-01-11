@@ -5,7 +5,7 @@ import Image from 'next/image';
 import { useRouter, usePathname } from 'next/navigation';
 import { FaSearch, FaShoppingCart, FaBars, FaTimes } from 'react-icons/fa';
 import { useCart } from '../context/CartContext';
-import { supabase } from '@/lib/supabase';
+
 
 interface Koku {
   id: number;
