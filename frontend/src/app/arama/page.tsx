@@ -1,7 +1,8 @@
 "use client";
+
 import { useSearchParams } from 'next/navigation';
-import { useEffect, useState } from 'react';
-import ProductCard from '../components/ProductCard';
+import { useEffect, useState, Suspense } from 'react';
+import ProductCard from '@/components/ProductCard';
 
 interface Product {
   id: number;
@@ -12,7 +13,7 @@ interface Product {
   category: string;
 }
 
-export default function SearchPage() {
+function SearchResults() {
   const searchParams = useSearchParams();
   const query = searchParams.get('q');
   const [products, setProducts] = useState<Product[]>([]);
@@ -82,5 +83,22 @@ export default function SearchPage() {
         ))}
       </div>
     </div>
+  );
+}
+
+export default function SearchPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="container mx-auto px-4 py-8">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900 mx-auto"></div>
+            <p className="mt-4 text-gray-600">Yükleniyor...</p>
+          </div>
+        </div>
+      }
+    >
+      <SearchResults />
+    </Suspense>
   );
 } 
