@@ -1,6 +1,5 @@
 "use client";
 import Link from 'next/link';
-import Image from 'next/image';
 import { useState, useEffect, useRef } from 'react';
 import { FaSearch, FaShoppingCart, FaTimes, FaBars } from 'react-icons/fa';
 import { useCart } from '@/app/context/CartContext';
