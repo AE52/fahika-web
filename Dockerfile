@@ -1,25 +1,27 @@
 # Frontend build aşaması
 FROM node:18-alpine AS frontend-builder
 
-WORKDIR /app/frontend
+WORKDIR /app
 
-# Frontend bağımlılıklarını kopyala ve yükle
+# Bağımlılıkları kopyala ve yükle
 COPY package*.json ./
 RUN npm install
 
-# Frontend kaynak kodlarını kopyala
+# Kaynak kodları kopyala
 COPY . .
 
-# ESLint kontrolünü devre dışı bırakarak build et
+# ESLint ve Telemetry'i devre dışı bırak
 ENV NEXT_TELEMETRY_DISABLED=1
 ENV NODE_ENV=production
 ENV NEXT_LINT_DURING_BUILD=false
+
+# Next.js uygulamasını build et
 RUN npm run build
 
 # Backend build aşaması
 FROM python:3.9-slim AS backend-builder
 
-WORKDIR /app/backend
+WORKDIR /app/api
 
 # Python bağımlılıklarını yükle
 COPY api/requirements.txt .
@@ -29,33 +31,29 @@ RUN pip install --no-cache-dir -r requirements.txt gunicorn
 COPY api/ .
 
 # Production aşaması
-FROM python:3.9-slim
+FROM node:18-alpine
 
 WORKDIR /app
 
-# Sistem bağımlılıklarını yükle
-RUN apt-get update && apt-get install -y \
-    curl \
-    nodejs \
-    npm \
-    && rm -rf /var/lib/apt/lists/*
+# Python ve gerekli paketleri yükle
+RUN apk add --no-cache python3 py3-pip
 
 # Frontend dosyalarını kopyala
-COPY --from=frontend-builder /app/frontend/.next ./.next
-COPY --from=frontend-builder /app/frontend/public ./public
-COPY --from=frontend-builder /app/frontend/package*.json ./
-COPY --from=frontend-builder /app/frontend/next.config.js ./
+COPY --from=frontend-builder /app/.next ./.next
+COPY --from=frontend-builder /app/public ./public
+COPY --from=frontend-builder /app/package*.json ./
+COPY --from=frontend-builder /app/next.config.js ./
 
-# Frontend bağımlılıklarını production modunda yükle
+# Frontend bağımlılıklarını yükle
 RUN npm install --production
 
 # Backend dosyalarını kopyala
-COPY --from=backend-builder /app/backend /app/api
-COPY --from=backend-builder /usr/local/lib/python3.9/site-packages /usr/local/lib/python3.9/site-packages
+COPY --from=backend-builder /app/api /app/api
+RUN pip3 install --no-cache-dir -r /app/api/requirements.txt gunicorn
 
 # Başlatma scriptini oluştur
-RUN echo '#!/bin/bash\n\
-cd /app/api && gunicorn --bind :8080 --workers 1 --threads 8 app:app &\n\
+RUN echo '#!/bin/sh\n\
+cd /app/api && python3 -m gunicorn --bind :8080 --workers 1 --threads 8 app:app &\n\
 cd /app && npm start &\n\
 wait' > /app/start.sh && \
 chmod +x /app/start.sh
@@ -71,12 +69,12 @@ ENV CLOUDINARY_CLOUD_NAME="dqhheif0c"
 ENV CLOUDINARY_API_KEY="164851497378274"
 ENV CLOUDINARY_API_SECRET="rKOL5XbXhqbheFG-xahvLsSthh4"
 
-# Port 8080'i dinle (Cloud Run standardı)
+# Port 8080'i dinle
 EXPOSE 8080
 
-# Healthcheck ekle
+# Health check ekle
 HEALTHCHECK --interval=30s --timeout=30s --start-period=5s --retries=3 \
-  CMD curl -f http://localhost:8080/health || exit 1
+  CMD wget --no-verbose --tries=1 --spider http://localhost:8080/health || exit 1
 
 # Uygulamayı başlat
 CMD ["/app/start.sh"] 
