@@ -8,13 +8,18 @@ import cloudinary
 import cloudinary.uploader
 import logging
 from logging.handlers import RotatingFileHandler
+from dotenv import load_dotenv
 
 app = Flask(__name__)
 CORS(app, resources={
-    r"/*": {
-        "origins": ["http://localhost:3000", "http://localhost:3001"],
+    r"/api/*": {
+        "origins": [
+            "http://localhost:3000",
+            "https://fahika.vercel.app",
+            "https://www.fahika.vercel.app"
+        ],
         "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-        "allow_headers": ["Content-Type"]
+        "allow_headers": ["Content-Type", "Authorization"]
     }
 })
 

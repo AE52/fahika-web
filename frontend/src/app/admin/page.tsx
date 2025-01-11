@@ -142,7 +142,10 @@ export default function AdminPage() {
         throw new Error('Kokular getirilirken bir hata oluştu');
       }
       const data = await response.json();
-      setKokular(data);
+      
+      // API yanıtını kontrol et ve düzenle
+      const kokularArray = Array.isArray(data) ? data : data.kokular || [];
+      setKokular(kokularArray);
     } catch (error) {
       console.error('Kokuları getirme hatası:', error);
       toast.error('Kokular yüklenirken bir hata oluştu');
