@@ -5,6 +5,8 @@ node_modules
 
 # Testing
 coverage
+__tests__
+*.test.*
 
 # Next.js
 .next
@@ -12,22 +14,21 @@ out
 
 # Production
 build
+dist
 
 # Misc
 .DS_Store
 *.pem
+.env*
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
 
 # Debug
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
-
-# Local env files
-.env
-.env.local
-.env.development.local
-.env.test.local
-.env.production.local
 
 # Python
 __pycache__
@@ -37,11 +38,29 @@ __pycache__
 .Python
 env/
 venv/
-.env
+.venv
+*.egg-info/
 
-# VS Code
+# IDE
+.idea/
 .vscode/
+*.swp
+*.swo
 
 # Git
 .git
-.gitignore 
+.gitignore
+.gitattributes
+
+# Docker
+Dockerfile*
+docker-compose*
+.docker
+
+# Logs
+logs
+*.log
+
+# System Files
+.DS_Store
+Thumbs.db 
