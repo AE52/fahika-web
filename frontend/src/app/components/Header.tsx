@@ -17,7 +17,7 @@ interface SearchResult {
 
 export default function Header() {
   const router = useRouter();
-  const { items, getCartTotal } = useCart();
+  const { items } = useCart();
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
