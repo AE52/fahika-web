@@ -1,97 +1,76 @@
 'use client';
 
-import { createContext, useContext, useState, useEffect } from 'react';
+import { createContext, useContext, useState, ReactNode } from 'react';
 
-interface Fotograf {
-  url: string;
-  sira: number;
-}
-
-export interface CartItem {
-  id: string;
-  slug: string;
-  isim: string;
-  ana_fotograf: string | null;
-  fiyat: number;
-  kategori: string;
-  hacim: string;
-  miktar: number;
+interface CartItem {
+  id: number;
+  name: string;
+  price: number;
+  image: string;
+  quantity: number;
 }
 
 interface CartContextType {
-  cart: CartItem[];
-  addToCart: (item: CartItem) => void;
-  removeFromCart: (id: string) => void;
-  updateQuantity: (id: string, miktar: number) => void;
+  items: CartItem[];
+  addToCart: (product: CartItem) => void;
+  removeFromCart: (productId: number) => void;
+  updateQuantity: (productId: number, quantity: number) => void;
   clearCart: () => void;
-  totalItems: number;
-  totalPrice: number;
+  getCartTotal: () => number;
 }
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
 
-export function CartProvider({ children }: { children: React.ReactNode }) {
-  const [cart, setCart] = useState<CartItem[]>([]);
+export function CartProvider({ children }: { children: ReactNode }) {
+  const [items, setItems] = useState<CartItem[]>([]);
 
-  // Sayfa yüklendiğinde sepeti localStorage'dan al
-  useEffect(() => {
-    const savedCart = localStorage.getItem('cart');
-    if (savedCart) {
-      setCart(JSON.parse(savedCart));
-    }
-  }, []);
-
-  // Sepet değiştiğinde localStorage'a kaydet
-  useEffect(() => {
-    localStorage.setItem('cart', JSON.stringify(cart));
-  }, [cart]);
-
-  const addToCart = (item: CartItem) => {
-    setCart(prevCart => {
-      const existingItem = prevCart.find(cartItem => cartItem.id === item.id);
+  const addToCart = (product: CartItem) => {
+    setItems(currentItems => {
+      const existingItem = currentItems.find(item => item.id === product.id);
+      
       if (existingItem) {
-        return prevCart.map(cartItem =>
-          cartItem.id === item.id
-            ? { ...cartItem, miktar: cartItem.miktar + 1 }
-            : cartItem
+        return currentItems.map(item =>
+          item.id === product.id
+            ? { ...item, quantity: item.quantity + 1 }
+            : item
         );
       }
-      return [...prevCart, { ...item, miktar: 1 }];
+      
+      return [...currentItems, { ...product, quantity: 1 }];
     });
   };
 
-  const removeFromCart = (id: string) => {
-    setCart(prevCart => prevCart.filter(item => item.id !== id));
+  const removeFromCart = (productId: number) => {
+    setItems(currentItems => currentItems.filter(item => item.id !== productId));
   };
 
-  const updateQuantity = (id: string, miktar: number) => {
-    if (miktar < 1) return;
-    setCart(prevCart =>
-      prevCart.map(item =>
-        item.id === id ? { ...item, miktar } : item
+  const updateQuantity = (productId: number, quantity: number) => {
+    if (quantity < 1) return;
+    
+    setItems(currentItems =>
+      currentItems.map(item =>
+        item.id === productId ? { ...item, quantity } : item
       )
     );
   };
 
   const clearCart = () => {
-    setCart([]);
+    setItems([]);
   };
 
-  const totalItems = cart.reduce((total, item) => total + item.miktar, 0);
-  const totalPrice = cart.reduce((total, item) => total + (item.fiyat * item.miktar), 0);
+  const getCartTotal = () => {
+    return items.reduce((total, item) => total + item.price * item.quantity, 0);
+  };
 
   return (
-    <CartContext.Provider
-      value={{
-        cart,
-        addToCart,
-        removeFromCart,
-        updateQuantity,
-        clearCart,
-        totalItems,
-        totalPrice
-      }}
-    >
+    <CartContext.Provider value={{
+      items,
+      addToCart,
+      removeFromCart,
+      updateQuantity,
+      clearCart,
+      getCartTotal
+    }}>
       {children}
     </CartContext.Provider>
   );
