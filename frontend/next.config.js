@@ -6,14 +6,7 @@ const nextConfig = {
       'res.cloudinary.com',
       'images.unsplash.com'
     ],
-  },
-  async rewrites() {
-    return [
-      {
-        source: '/api/:path*',
-        destination: 'http://localhost:8080/api/:path*'
-      }
-    ]
+    unoptimized: true
   },
   env: {
     API_URL: process.env.API_URL || 'http://localhost:8080'

@@ -1,49 +1,150 @@
 # Dependencies
-node_modules
+node_modules/
 .pnp
 .pnp.js
+package-lock.json
+yarn.lock
 
 # Testing
-coverage
-__tests__
-*.test.*
+coverage/
+.nyc_output/
 
 # Next.js
-.next
-out
+.next/
+out/
+build/
+dist/
 
 # Production
-build
-dist
-
-# Misc
-.DS_Store
-*.pem
-.env*
-!.env.example
+build/
+dist/
+*.tsbuildinfo
 
 # Debug
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+.pnpm-debug.log*
+
+# Local env files
+.env
+.env*.local
+.env.development
+.env.test
+.env.production
+
+# Vercel
+.vercel/
 
 # Python
-__pycache__
-*.pyc
-*.pyo
-*.pyd
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
 .Python
 env/
-venv/
-.venv
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
 *.egg-info/
+.installed.cfg
+*.egg
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+.nox/
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+*.py,cover
+.hypothesis/
 
-# IDE
+# Virtual Environment
+venv/
+.venv/
+ENV/
+env.bak/
+venv.bak/
+
+# IDEs and editors
 .idea/
 .vscode/
 *.swp
 *.swo
+*~
+*.iml
+.project
+.classpath
+.settings/
+*.sublime-workspace
+*.sublime-project
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
 
 # Logs
-logs
+logs/
 *.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Docker
+.docker/
+docker-compose.override.yml
+
+# Database
+*.sqlite
+*.sqlite3
+*.db
+
+# Media files
+uploads/
+media/
+public/uploads/
+static/uploads/
+
+# Temporary files
+*.tmp
+*.temp
+*.swp
+*.swo
+*~
+
+# Build output
+dist/
+build/
+out/
+.next/
+.nuxt/
+.vuepress/dist/
+
+# Cache directories
+.cache/
+.npm/
+.eslintcache
+.stylelintcache
+
+# Misc
+*.bak
+*.backup
+*.old
+.env.example
