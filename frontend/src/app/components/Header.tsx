@@ -16,9 +16,8 @@ interface SearchResult {
 
 export default function Header() {
   const router = useRouter();
-  const { items } = useCart();
+  const { items, isCartOpen, setIsCartOpen } = useCart();
   const [isSearchOpen, setIsSearchOpen] = useState(false);
-  const [isCartOpen, setIsCartOpen] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
@@ -187,6 +186,60 @@ export default function Header() {
               İletişim
             </Link>
           </nav>
+        </div>
+      )}
+
+      {/* Arama Modal */}
+      {isSearchOpen && (
+        <div className="fixed inset-0 z-50 overflow-hidden">
+          <div className="absolute inset-0 bg-black bg-opacity-50" onClick={() => setIsSearchOpen(false)} />
+          <div className="fixed inset-x-0 top-0 z-50 bg-white shadow-lg" ref={searchRef}>
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+              <form onSubmit={handleSearch} className="relative">
+                <input
+                  type="text"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  placeholder="Koku ara..."
+                  className="w-full px-4 py-2 pl-10 pr-12 border rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-500"
+                  autoFocus
+                />
+                <FaSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+                <button
+                  type="button"
+                  onClick={() => setIsSearchOpen(false)}
+                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                >
+                  <FaTimes className="h-5 w-5" />
+                </button>
+              </form>
+
+              {isLoading ? (
+                <div className="flex justify-center py-8">
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
+                </div>
+              ) : searchResults.length > 0 ? (
+                <div className="mt-4 space-y-4 max-h-96 overflow-auto">
+                  {searchResults.map((result) => (
+                    <Link
+                      key={result.id}
+                      href={`/kokularimiz/${result.id}`}
+                      onClick={() => setIsSearchOpen(false)}
+                      className="flex items-center p-2 hover:bg-gray-50 rounded-lg transition-colors"
+                    >
+                      <div className="ml-3 flex-1">
+                        <h3 className="text-sm font-medium text-gray-900">{result.name}</h3>
+                        <p className="text-sm text-gray-500">{result.category}</p>
+                      </div>
+                      <span className="text-sm font-medium text-gray-900">{result.price} TL</span>
+                    </Link>
+                  ))}
+                </div>
+              ) : searchTerm.length >= 2 ? (
+                <p className="text-center py-8 text-gray-500">Sonuç bulunamadı</p>
+              ) : null}
+            </div>
+          </div>
         </div>
       )}
     </header>
