@@ -16,6 +16,13 @@ const bannerMessages = [
   "Yeni gelen ürünlerde özel fiyatlar! ✨"
 ];
 
+// Menü öğeleri
+const menuItems = [
+  { href: '/', label: 'Ana Sayfa' },
+  { href: '/hakkimizda', label: 'Hakkımızda' },
+  { href: '/iletisim', label: 'İletişim' },
+];
+
 export default function Header() {
   const pathname = usePathname();
   const { cart, isCartOpen, setIsCartOpen, removeFromCart, updateQuantity } = useCart();
@@ -25,9 +32,9 @@ export default function Header() {
     id: string;
     slug: string;
     isim: string;
-    ana_fotograf: string;
     fiyat: number;
     kategori: string;
+    ana_fotograf: string;
     hacim: string;
   }>>([]);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -37,76 +44,71 @@ export default function Header() {
     id: string;
     slug: string;
     isim: string;
-    ana_fotograf: string;
     fiyat: number;
     kategori: string;
+    ana_fotograf: string;
     hacim: string;
   }>>([]);
 
-  // Banner mesajını değiştir
+  // Banner mesajlarını döndür
   useEffect(() => {
     const timer = setInterval(() => {
-      setCurrentBannerIndex((prev) => (prev + 1) % bannerMessages.length);
+      setCurrentBannerIndex((prevIndex) => 
+        prevIndex === bannerMessages.length - 1 ? 0 : prevIndex + 1
+      );
     }, 5000);
 
     return () => clearInterval(timer);
   }, []);
 
-  const menuItems = [
-    { href: '/', label: 'Ana Sayfa' },
-    { href: '/hakkimizda', label: 'Hakkımızda' },
-    { href: '/iletisim', label: 'İletişim' },
-  ];
-
-  // Tüm ürünleri yükle
+  // Tüm ürünleri getir
   useEffect(() => {
     const fetchProducts = async () => {
       try {
         const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/kokular`);
-        if (!response.ok) {
-          throw new Error('Ürünler yüklenirken bir hata oluştu');
-        }
+        if (!response.ok) throw new Error('Ürünler getirilemedi');
         const data = await response.json();
-        setAllProducts(data.kokular || []);
+        setAllProducts(data);
       } catch (error) {
-        console.error('Ürün yükleme hatası:', error);
+        console.error('Ürün getirme hatası:', error);
       }
     };
 
     fetchProducts();
   }, []);
 
-  // Client-side arama
+  // Arama işlemi
   useEffect(() => {
-    if (!searchQuery.trim()) {
+    if (searchQuery.length >= 2) {
+      setIsSearching(true);
+      const searchTerm = searchQuery.toLowerCase().trim();
+      const filteredResults = allProducts.filter(product =>
+        product.isim.toLowerCase().includes(searchTerm) ||
+        product.kategori.toLowerCase().includes(searchTerm)
+      );
+      setSearchResults(filteredResults);
+      setIsSearching(false);
+    } else {
       setSearchResults([]);
-      return;
     }
-
-    const searchTerm = searchQuery.toLowerCase().trim();
-    const filteredResults = allProducts.filter(product => 
-      product.isim.toLowerCase().includes(searchTerm) ||
-      product.kategori.toLowerCase().includes(searchTerm)
-    );
-
-    setSearchResults(filteredResults);
   }, [searchQuery, allProducts]);
 
-  // Mevcut handleSearch fonksiyonunu güncelle
+  // Arama formunu gönder
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
+    if (searchQuery.trim()) {
+      setIsSearchOpen(false);
+      setIsMenuOpen(false);
+    }
   };
 
+  // Toplam tutarı hesapla
   const toplamTutar = cart.reduce((total, item) => total + item.fiyat * item.miktar, 0);
 
+  // WhatsApp siparişi
   const whatsappSiparisVer = () => {
     const mesaj = `Merhaba, aşağıdaki ürünleri sipariş etmek istiyorum:\n\n${cart
-      .map(
-        (item) =>
-          `${item.isim} (${item.hacim}) - ${item.miktar} adet - ${
-            item.fiyat * item.miktar
-          } TL`
-      )
+      .map(item => `${item.isim} (${item.hacim}) - ${item.miktar} adet - ${item.fiyat} TL`)
       .join('\n')}\n\nToplam Tutar: ${toplamTutar} TL`;
 
     window.open(
