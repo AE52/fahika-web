@@ -42,6 +42,13 @@ interface Koku {
   ana_fotograf: string;
 }
 
+// URL'deki hataları temizleyen yardımcı fonksiyon
+const cleanImageUrl = (url: string): string => {
+  if (!url) return '';
+  // URL'nin sonundaki sayıları ve gereksiz karakterleri temizle
+  return url.replace(/[0-9]+$/, '').replace(/\.[^/.]+$/, '.jpg');
+};
+
 export default function AdminPage() {
   // State hooks
   const [kokular, setKokular] = useState<Koku[]>([]);
@@ -169,16 +176,24 @@ export default function AdminPage() {
 
   // Koku düzenleme
   const kokuDuzenle = (koku: Koku) => {
-    // Fotoğrafları sıralı hale getir ve boş URL'leri filtrele
+    // Fotoğrafları kontrol et ve düzenle
+    const duzenliFotograflar = (koku.fotograflar || [])
+      .filter(foto => foto && foto.url && foto.url.trim() !== '')
+      .map((foto, index) => ({
+        url: cleanImageUrl(foto.url.trim()),
+        sira: index
+      }));
+
+    // Ana fotoğrafı kontrol et ve temizle
+    const anaFotograf = cleanImageUrl(koku.ana_fotograf?.trim() || duzenliFotograflar[0]?.url || '');
+
     const siraliKoku = {
       ...koku,
-      fotograflar: (koku.fotograflar || [])
-        .filter(foto => foto.url && foto.url.trim() !== '')  // Boş URL'leri filtrele
-        .map((foto, index) => ({
-          ...foto,
-          sira: index
-        }))
+      fotograflar: duzenliFotograflar,
+      ana_fotograf: anaFotograf
     };
+
+    console.log('Düzenlenen koku:', siraliKoku);
     setSeciliKoku(siraliKoku);
     setDuzenlemeModu('duzenle');
   };
@@ -347,29 +362,29 @@ export default function AdminPage() {
         return;
       }
 
-      const response = await fetch(`http://localhost:8080/api/admin/kokular/${kokuId}/fotograflar/sirala`, {
+      // Fotoğrafları temizle ve sırala
+      const temizFotograflar = yeniFotograflar.map((foto, index) => ({
+        url: cleanImageUrl(foto.url),
+        sira: index
+      }));
+
+      // Koku bilgilerini güncelle
+      const response = await fetch(`http://localhost:8080/api/admin/kokular/${kokuId}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`
         },
-        body: JSON.stringify({ fotograflar: yeniFotograflar })
+        body: JSON.stringify({
+          fotograflar: temizFotograflar
+        })
       });
 
-      if (response.status === 401) {
-        localStorage.removeItem('adminToken');
-        router.push('/admin/login');
-        return;
-      }
-
       if (!response.ok) {
-        const errorText = await response.text();
-        console.error('Sıralama güncelleme hatası:', errorText);
         throw new Error('Fotoğraf sırası güncellenemedi');
       }
 
-      const data = await response.json();
-      console.log('Sıralama güncelleme cevabı:', data);
+      return await response.json();
     } catch (error) {
       console.error('Sıralama güncelleme hatası:', error);
       throw error;
@@ -473,73 +488,36 @@ export default function AdminPage() {
     
     if (!over || active.id === over.id || !seciliKoku) return;
 
-    const oldIndex = seciliKoku.fotograflar.findIndex(f => f.url === active.id);
-    const newIndex = seciliKoku.fotograflar.findIndex(f => f.url === over.id);
-
-    if (oldIndex === -1 || newIndex === -1) return;
-
-    const yeniFotograflar = arrayMove(seciliKoku.fotograflar, oldIndex, newIndex)
-      .map((foto, index) => ({
-        url: foto.url,
-        sira: index
-      }));
-
     try {
-      await fotografSiralamaGuncelle(seciliKoku.id, yeniFotograflar);
+      // URL'leri temizle
+      const activeUrl = cleanImageUrl(active.id.toString());
+      const overUrl = cleanImageUrl(over.id.toString());
+
+      const oldIndex = seciliKoku.fotograflar.findIndex(f => cleanImageUrl(f.url) === activeUrl);
+      const newIndex = seciliKoku.fotograflar.findIndex(f => cleanImageUrl(f.url) === overUrl);
+
+      if (oldIndex === -1 || newIndex === -1) return;
+
+      // Yeni sıralamayı oluştur
+      const yeniFotograflar = arrayMove(seciliKoku.fotograflar, oldIndex, newIndex)
+        .map((foto, index) => ({
+          url: cleanImageUrl(foto.url),
+          sira: index
+        }));
+
+      // Önce state'i güncelle
       setSeciliKoku({
         ...seciliKoku,
         fotograflar: yeniFotograflar
       });
+
+      // Sonra sunucuya gönder
+      await fotografSiralamaGuncelle(seciliKoku.id, yeniFotograflar);
+      toast.success('Fotoğraf sırası güncellendi');
+
     } catch (error) {
       console.error('Sıralama güncelleme hatası:', error);
       toast.error('Fotoğraf sırası güncellenirken bir hata oluştu');
-    }
-  };
-
-  const handleFotoSil = async (url: string) => {
-    if (!seciliKoku) return;
-
-    try {
-      const token = localStorage.getItem('adminToken');
-      if (!token) {
-        toast.error('Oturum süresi dolmuş');
-        router.push('/admin/login');
-        return;
-      }
-
-      const encodedUrl = encodeURIComponent(url);
-      const apiUrl = `http://localhost:8080/api/admin/kokular/${seciliKoku.id}/fotograflar/${encodedUrl}`;
-      console.log('Fotoğraf silme URL:', apiUrl);
-
-      const response = await fetch(apiUrl, {
-        method: 'DELETE',
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      });
-
-      if (!response.ok) {
-        const errorText = await response.text();
-        console.error('Hata yanıtı:', errorText);
-        throw new Error('Fotoğraf silme başarısız');
-      }
-
-      const yeniFotograflar = seciliKoku.fotograflar.filter(f => f.url !== url);
-      const yeniAnaFotograf = url === seciliKoku.ana_fotograf
-        ? (yeniFotograflar[0]?.url || '')
-        : seciliKoku.ana_fotograf;
-
-      const yeniKoku = {
-        ...seciliKoku,
-        fotograflar: yeniFotograflar,
-        ana_fotograf: yeniAnaFotograf
-      };
-
-      setSeciliKoku(yeniKoku);
-      toast.success('Fotoğraf başarıyla silindi');
-    } catch (error) {
-      console.error('Fotoğraf silme hatası:', error);
-      toast.error(error instanceof Error ? error.message : 'Fotoğraf silinirken bir hata oluştu');
     }
   };
 
@@ -582,25 +560,103 @@ export default function AdminPage() {
         throw new Error('Sunucudan geçersiz yanıt alındı');
       }
 
-      // Yeni fotoğrafı ekle ve boş URL'leri filtrele
-      const mevcutFotograflar = seciliKoku.fotograflar.filter(foto => foto.url && foto.url.trim() !== '');
+      // URL'yi temizle
+      const temizUrl = cleanImageUrl(data.url);
+
+      // Mevcut fotoğrafları kontrol et ve filtrele
+      const mevcutFotograflar = seciliKoku.fotograflar?.filter(foto => foto && foto.url) || [];
+      
+      // Yeni fotoğrafı ekle
       const yeniFotograflar = [
         ...mevcutFotograflar,
-        { url: data.url, sira: mevcutFotograflar.length }
+        { url: temizUrl, sira: mevcutFotograflar.length }
       ];
 
-      // Ana fotoğraf yoksa veya geçersizse, yeni fotoğrafı ana fotoğraf olarak ayarla
+      // Ana fotoğraf yoksa, yeni fotoğrafı ana fotoğraf olarak ayarla
       const yeniKoku = {
         ...seciliKoku,
         fotograflar: yeniFotograflar,
-        ana_fotograf: seciliKoku.ana_fotograf?.trim() || data.url
+        ana_fotograf: seciliKoku.ana_fotograf || temizUrl
       };
 
       setSeciliKoku(yeniKoku);
       toast.success('Fotoğraf başarıyla yüklendi');
+
+      // Fotoğrafları sunucuda güncelle
+      const updateResponse = await fetch(`http://localhost:8080/api/admin/kokular/${seciliKoku.id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify(yeniKoku)
+      });
+
+      if (!updateResponse.ok) {
+        throw new Error('Fotoğraf bilgileri güncellenemedi');
+      }
+
     } catch (error) {
       console.error('Fotoğraf yükleme hatası:', error);
       toast.error(error instanceof Error ? error.message : 'Fotoğraf yüklenirken bir hata oluştu');
+    }
+  };
+
+  const handleFotoSil = async (url: string) => {
+    if (!seciliKoku) return;
+
+    try {
+      const token = localStorage.getItem('adminToken');
+      if (!token) {
+        toast.error('Oturum süresi dolmuş');
+        router.push('/admin/login');
+        return;
+      }
+
+      // URL'yi temizle
+      const temizUrl = cleanImageUrl(url);
+
+      // Fotoğrafı listeden kaldır
+      const yeniFotograflar = seciliKoku.fotograflar
+        .filter(f => cleanImageUrl(f.url) !== temizUrl)
+        .map((foto, index) => ({
+          url: cleanImageUrl(foto.url),
+          sira: index
+        }));
+
+      // Ana fotoğraf siliniyorsa, yeni ana fotoğraf seç
+      let yeniAnaFotograf = cleanImageUrl(seciliKoku.ana_fotograf);
+      if (temizUrl === yeniAnaFotograf) {
+        yeniAnaFotograf = yeniFotograflar[0]?.url || '';
+      }
+
+      // Koku bilgilerini güncelle
+      const yeniKoku = {
+        ...seciliKoku,
+        fotograflar: yeniFotograflar,
+        ana_fotograf: yeniAnaFotograf
+      };
+
+      // Sunucuya güncelleme isteği gönder
+      const response = await fetch(`http://localhost:8080/api/admin/kokular/${seciliKoku.id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify(yeniKoku)
+      });
+
+      if (!response.ok) {
+        throw new Error('Fotoğraf silinemedi');
+      }
+
+      setSeciliKoku(yeniKoku);
+      toast.success('Fotoğraf başarıyla silindi');
+
+    } catch (error) {
+      console.error('Fotoğraf silme hatası:', error);
+      toast.error(error instanceof Error ? error.message : 'Fotoğraf silinirken bir hata oluştu');
     }
   };
 

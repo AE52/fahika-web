@@ -1,6 +1,7 @@
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import Image from 'next/image';
+import { useState } from 'react';
 
 interface Fotograf {
   url: string;
@@ -15,6 +16,7 @@ interface SortableFotoProps {
 }
 
 export function SortableFoto({ foto, index, kokuIsim, onSil }: SortableFotoProps) {
+  const [imageError, setImageError] = useState(false);
   const {
     attributes,
     listeners,
@@ -43,19 +45,23 @@ export function SortableFoto({ foto, index, kokuIsim, onSil }: SortableFotoProps
     >
       <div className="w-full h-full relative">
         <Image
-          src={foto.url || '/images/placeholder.jpg'}
+          src={imageError ? '/images/placeholder.jpg' : foto.url}
           alt={`${kokuIsim} - Fotoğraf ${index + 1}`}
           fill
           className="object-cover rounded-lg"
           sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-          onError={(e: any) => {
-            console.error('Fotoğraf yükleme hatası:', e);
-            e.currentTarget.src = '/images/placeholder.jpg';
+          unoptimized={true}
+          onError={() => {
+            console.error('Fotoğraf yükleme hatası:', foto.url);
+            setImageError(true);
           }}
         />
       </div>
       <button
-        onClick={onSil}
+        onClick={(e) => {
+          e.stopPropagation();
+          onSil();
+        }}
         className="absolute top-2 right-2 bg-red-500 text-white p-1 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-200"
       >
         <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
