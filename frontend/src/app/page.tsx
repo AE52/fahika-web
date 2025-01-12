@@ -8,6 +8,7 @@ import { toast } from 'react-hot-toast';
 import { motion } from 'framer-motion';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Autoplay, Navigation, Pagination } from 'swiper/modules';
+import ProductCard from '@/components/ProductCard';
 import 'swiper/css';
 import 'swiper/css/navigation';
 import 'swiper/css/pagination';
@@ -19,11 +20,11 @@ interface Koku {
   ana_fotograf: string;
   fotograflar: string[];
   fiyat: number;
-  aciklama: string;
   kategori: string;
+  hacim: string;
+  aciklama: string;
   stok: number;
   koku_notlari: string;
-  hacim: string;
   created_at: string;
 }
 
@@ -237,7 +238,7 @@ export default function Home() {
   }
 
   return (
-    <main>
+    <main className="bg-white">
       <Banner />
       <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 py-12">
         {/* Filtreler */}
@@ -245,10 +246,10 @@ export default function Home() {
           <div className="flex flex-wrap gap-2">
             <button
               onClick={() => setSeciliKategori('tumu')}
-              className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+              className={`px-4 py-2 text-sm font-medium transition-colors ${
                 seciliKategori === 'tumu'
-                  ? 'bg-black text-white'
-                  : 'bg-gray-100 text-gray-800 hover:bg-gray-200'
+                ? 'bg-black text-white'
+                : 'bg-gray-100 text-gray-800 hover:bg-gray-200'
               }`}
             >
               Tümü
@@ -274,83 +275,29 @@ export default function Home() {
               Oda Kokuları
             </button>
           </div>
-
           <select
             value={siralama}
             onChange={(e) => setSiralama(e.target.value)}
-            className="px-4 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-black"
+            className="px-4 py-2 border border-gray-200 rounded-none bg-white text-sm focus:outline-none focus:ring-1 focus:ring-black"
           >
             <option value="varsayilan">Varsayılan Sıralama</option>
             <option value="fiyat-artan">Fiyat: Düşükten Yükseğe</option>
             <option value="fiyat-azalan">Fiyat: Yüksekten Düşüğe</option>
             <option value="isim-a-z">İsim: A-Z</option>
             <option value="isim-z-a">İsim: Z-A</option>
-            <option value="yeni-eski">Tarih: Yeniden Eskiye</option>
-            <option value="eski-yeni">Tarih: Eskiden Yeniye</option>
+            <option value="yeni-eski">En Yeniler</option>
+            <option value="eski-yeni">En Eskiler</option>
           </select>
         </div>
 
-        {/* Koku Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+        {/* Ürün Grid */}
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-4 gap-y-8">
           {filtrelenmisKokular.map((koku) => (
-            <motion.div
+            <ProductCard
               key={koku.id}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.3 }}
-              className="group"
-            >
-              <Link href={`/kokularimiz/${koku.slug}`} className="block">
-                <div className="relative aspect-[3/4] bg-gray-100 rounded-lg overflow-hidden mb-4">
-                  <ImageWithLoading
-                    src={koku.ana_fotograf}
-                    alt={koku.isim}
-                    fill
-                    className="object-cover transition-transform duration-500 group-hover:scale-105"
-                    sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
-                  />
-                  {koku.fotograflar?.length > 1 && (
-                    <div className="absolute inset-0 bg-black opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                      <Image
-                        src={koku.fotograflar[1]}
-                        alt={`${koku.isim} - 2`}
-                        fill
-                        className="object-cover"
-                        sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
-                      />
-                    </div>
-                  )}
-                  {koku.stok === 0 && (
-                    <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center">
-                      <span className="text-white text-sm font-medium px-4 py-2 bg-black rounded-full">
-                        Tükendi
-                      </span>
-                    </div>
-                  )}
-                </div>
-              </Link>
-              <div className="space-y-2">
-                <h3 className="text-lg font-medium">{koku.isim}</h3>
-                <p className="text-gray-600">{koku.hacim}</p>
-                <div className="flex justify-between items-center">
-                  <p className="text-lg font-medium">{koku.fiyat.toLocaleString('tr-TR')} ₺</p>
-                  <button
-                    onClick={() => sepeteEkle(koku)}
-                    disabled={koku.stok === 0}
-                    className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                      koku.stok === 0
-                        ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
-                        : 'bg-black text-white hover:bg-gray-900'
-                    }`}
-                  >
-                    {koku.stok === 0 ? 'Tükendi' : 'Sepete Ekle'}
-                  </button>
-                </div>
-                {koku.stok > 0 && koku.stok <= 5 && (
-                  <p className="text-red-500 text-sm">Son {koku.stok} ürün!</p>
-                )}
-              </div>
-            </motion.div>
+              koku={koku}
+              onSepeteEkle={sepeteEkle}
+            />
           ))}
         </div>
       </div>

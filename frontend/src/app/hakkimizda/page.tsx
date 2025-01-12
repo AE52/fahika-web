@@ -1,45 +1,41 @@
 "use client";
 
-export default function AboutPage() {
+export default function HakkimizdaPage() {
   return (
-    <div className="container mx-auto px-4 py-8">
-      <h1 className="text-3xl font-bold mb-6">Hakkımızda</h1>
+    <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 py-12">
+      <h1 className="text-3xl font-medium text-gray-900 mb-8">Hakkımızda</h1>
       
-      <div className="bg-white rounded-lg shadow-md p-6">
-        <section className="mb-8">
-          <h2 className="text-2xl font-semibold mb-4">Biz Kimiz?</h2>
-          <p className="text-gray-700 leading-relaxed">
-            Fahika olarak, koku tutkunları için özel olarak seçilmiş parfüm ve oda kokularını sizlerle buluşturuyoruz. 
-            Amacımız, her anınızı özel kılacak, size ve yaşam alanlarınıza uygun kokular sunmaktır.
-          </p>
-        </section>
+      <div className="prose prose-lg max-w-none">
+        <p>
+          Fahika olarak, yaşam alanlarınızı eşsiz kokularla buluşturma tutkusuyla yola çıktık. 
+          Her bir ürünümüz, özenle seçilmiş doğal hammaddelerle üretilmekte ve sizlere benzersiz bir deneyim sunmaktadır.
+        </p>
 
-        <section className="mb-8">
-          <h2 className="text-2xl font-semibold mb-4">Misyonumuz</h2>
-          <p className="text-gray-700 leading-relaxed">
-            Kaliteli ve özgün kokuları erişilebilir fiyatlarla sunarak, 
-            müşterilerimizin hayatlarına değer katmak ve unutulmaz kokusal deneyimler yaşatmaktır.
-          </p>
-        </section>
+        <h2 className="text-2xl font-medium text-gray-900 mt-8 mb-4">Misyonumuz</h2>
+        <p>
+          Yaşam alanlarınızı sadece koku ile değil, aynı zamanda estetik ve kalite ile de zenginleştirmek. 
+          Her bir ürünümüz, uzun süren araştırma ve geliştirme süreçlerinin sonucunda ortaya çıkmaktadır.
+        </p>
 
-        <section className="mb-8">
-          <h2 className="text-2xl font-semibold mb-4">Vizyonumuz</h2>
-          <p className="text-gray-700 leading-relaxed">
-            Türkiye&apos;nin lider koku markası olarak, müşterilerimize en kaliteli ürünleri 
-            ve en iyi alışveriş deneyimini sunmayı hedefliyoruz.
-          </p>
-        </section>
+        <h2 className="text-2xl font-medium text-gray-900 mt-8 mb-4">Değerlerimiz</h2>
+        <ul className="list-disc pl-6 space-y-2">
+          <li>Kaliteden ödün vermeden üretim</li>
+          <li>Müşteri memnuniyeti odaklı hizmet</li>
+          <li>Çevreye ve doğaya saygılı üretim süreçleri</li>
+          <li>Sürdürülebilir ve yenilikçi yaklaşım</li>
+          <li>Şeffaf ve dürüst iletişim</li>
+        </ul>
 
-        <section>
-          <h2 className="text-2xl font-semibold mb-4">Değerlerimiz</h2>
-          <ul className="list-disc list-inside text-gray-700 space-y-2">
-            <li>Müşteri memnuniyeti odaklı hizmet</li>
-            <li>Yüksek kalite standartları</li>
-            <li>Şeffaflık ve dürüstlük</li>
-            <li>Sürdürülebilir üretim</li>
-            <li>Yenilikçi yaklaşım</li>
-          </ul>
-        </section>
+        <h2 className="text-2xl font-medium text-gray-900 mt-8 mb-4">Kalite Politikamız</h2>
+        <p>
+          Fahika olarak, her ürünümüzün en yüksek kalite standartlarında üretilmesini sağlıyoruz. 
+          Hammadde seçiminden paketlemeye kadar her aşamada titiz bir kalite kontrol süreci uyguluyoruz.
+        </p>
+
+        <p className="mt-8">
+          Sizlere sunduğumuz her ürün, yaşam alanlarınızı daha keyifli ve özel kılma amacımızın bir yansımasıdır. 
+          Fahika ailesinin bir parçası olduğunuz için teşekkür ederiz.
+        </p>
       </div>
     </div>
   );

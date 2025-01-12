@@ -1,59 +1,88 @@
 'use client';
 
 import Link from 'next/link';
-import { FaFacebook, FaInstagram, FaWhatsapp } from 'react-icons/fa';
+import Image from 'next/image';
 
 export default function Footer() {
-  const whatsappNumarasi = '905555555555';
-
   return (
-    <footer className="bg-black text-white">
-      <div className="container mx-auto px-4 py-12">
+    <footer className="bg-white border-t border-gray-100">
+      <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
-          {/* Hakkımızda */}
-          <div>
-            <h3 className="text-lg font-medium mb-4">Hakkımızda</h3>
-            <p className="text-gray-400 text-sm">
-              Fahika, yaşam alanlarınız için özel tasarlanmış kokular sunar. 
-              Doğal ve kaliteli hammaddelerle üretilen ürünlerimiz, 
-              mekanlarınıza benzersiz bir atmosfer katar.
+          {/* Logo ve Slogan */}
+          <div className="col-span-1">
+            <Link href="/" className="block mb-4">
+              <Image 
+                src="/FAHIKA-LOGO.png"
+                alt="Fahika Logo"
+                width={120}
+                height={40}
+                className="h-10 w-auto"
+              />
+            </Link>
+            <p className="text-gray-600 text-sm mt-4">
+              Hayatınıza dokunan anılarınızı eşsiz kokularla taçlandırıyor
             </p>
           </div>
 
-          {/* Koleksiyonlar */}
+          {/* Ana Menü */}
           <div>
-            <h3 className="text-lg font-medium mb-4">Koleksiyonlar</h3>
-            <ul className="space-y-2 text-gray-400 text-sm">
+            <h3 className="text-sm font-semibold text-gray-900 mb-4">Ana Menü</h3>
+            <ul className="space-y-3">
               <li>
-                <Link href="/" className="hover:text-white">
-                  Kokular
+                <Link href="/" className="text-gray-600 hover:text-gray-900">
+                  Anasayfa
                 </Link>
               </li>
               <li>
-                <Link href="/" className="hover:text-white">
-                  Oda Kokuları
+                <Link href="/hakkimizda" className="text-gray-600 hover:text-gray-900">
+                  Hakkımızda
                 </Link>
               </li>
               <li>
-                <Link href="/" className="hover:text-white">
-                  Parfümler
+                <Link href="/" className="text-gray-600 hover:text-gray-900">
+                  Kokularımız
+                </Link>
+              </li>
+              <li>
+                <Link href="/iletisim" className="text-gray-600 hover:text-gray-900">
+                  İletişim
                 </Link>
               </li>
             </ul>
           </div>
 
-          {/* Hesabım */}
+          {/* Kurumsal */}
           <div>
-            <h3 className="text-lg font-medium mb-4">Hesabım</h3>
-            <ul className="space-y-2 text-gray-400 text-sm">
+            <h3 className="text-sm font-semibold text-gray-900 mb-4">Kurumsal</h3>
+            <ul className="space-y-3">
               <li>
-                <Link href="/sepet" className="hover:text-white">
-                  Sepetim
+                <Link href="/mesafeli-satis-sozlesmesi" className="text-gray-600 hover:text-gray-900">
+                  Mesafeli Satış Sözleşmesi
                 </Link>
               </li>
               <li>
-                <Link href="/favoriler" className="hover:text-white">
-                  Favorilerim
+                <Link href="/geri-odeme-ve-iade" className="text-gray-600 hover:text-gray-900">
+                  Geri Ödeme ve İade Politikası
+                </Link>
+              </li>
+              <li>
+                <Link href="/kvkk" className="text-gray-600 hover:text-gray-900">
+                  KVKK Aydınlatma Metni
+                </Link>
+              </li>
+              <li>
+                <Link href="/gizlilik-politikasi" className="text-gray-600 hover:text-gray-900">
+                  Gizlilik Politikası
+                </Link>
+              </li>
+              <li>
+                <Link href="/cerez-politikasi" className="text-gray-600 hover:text-gray-900">
+                  Çerez Politikası
+                </Link>
+              </li>
+              <li>
+                <Link href="/kosullar-ve-sartlar" className="text-gray-600 hover:text-gray-900">
+                  Koşullar ve Şartlar
                 </Link>
               </li>
             </ul>
@@ -61,60 +90,28 @@ export default function Footer() {
 
           {/* İletişim */}
           <div>
-            <h3 className="text-lg font-medium mb-4">İletişim</h3>
-            <ul className="space-y-2 text-gray-400 text-sm">
+            <h3 className="text-sm font-semibold text-gray-900 mb-4">İletişim</h3>
+            <ul className="space-y-3 text-gray-600">
               <li>
-                <Link href="/iletisim" className="hover:text-white">
-                  İletişim Formu
-                </Link>
+                <strong className="block text-gray-900">Adres:</strong>
+                Burhaniye Mahallesi. Kağıtçıbaşı Sokak. No: 48/B Üsküdar İstanbul
               </li>
               <li>
-                <a
-                  href={`https://wa.me/${whatsappNumarasi}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="hover:text-white"
-                >
-                  WhatsApp
-                </a>
+                <strong className="block text-gray-900">E-posta:</strong>
+                iletisim@fahika.com
+              </li>
+              <li>
+                <strong className="block text-gray-900">Telefon:</strong>
+                +90 532 280 95 11
               </li>
             </ul>
           </div>
         </div>
 
-        {/* Sosyal Medya ve Telif Hakkı */}
-        <div className="mt-12 pt-8 border-t border-gray-800">
-          <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
-            <p className="text-gray-400 text-sm">
-              © {new Date().getFullYear()} Fahika. Tüm hakları saklıdır.
-            </p>
-            <div className="flex space-x-6">
-              <a
-                href="https://facebook.com"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-gray-400 hover:text-white"
-              >
-                <FaFacebook size={20} />
-              </a>
-              <a
-                href="https://instagram.com"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-gray-400 hover:text-white"
-              >
-                <FaInstagram size={20} />
-              </a>
-              <a
-                href={`https://wa.me/${whatsappNumarasi}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-gray-400 hover:text-white"
-              >
-                <FaWhatsapp size={20} />
-              </a>
-            </div>
-          </div>
+        <div className="mt-12 pt-8 border-t border-gray-100">
+          <p className="text-center text-gray-500 text-sm">
+            © {new Date().getFullYear()} FAHİKA. Tüm hakları saklıdır.
+          </p>
         </div>
       </div>
     </footer>

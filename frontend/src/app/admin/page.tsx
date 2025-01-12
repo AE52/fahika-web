@@ -115,6 +115,7 @@ export default function AdminPage() {
   const [duzenlemeModu, setDuzenlemeModu] = useState<'yeni' | 'duzenle' | null>(null);
   const [seciliKoku, setSeciliKoku] = useState<Koku | null>(null);
   const [filtreKelime, setFiltreKelime] = useState('');
+  const [jsonInput, setJsonInput] = useState('');
 
   // Sensors for DnD
   const sensors = useSensors(
@@ -330,7 +331,7 @@ export default function AdminPage() {
       if (!koku) return false;
 
       // Fotoğrafları güncelle
-      const yeniKoku = { 
+      const yeniKoku = {
         ...koku, 
         fotograflar
       };
@@ -410,6 +411,34 @@ export default function AdminPage() {
     setDuzenlemeModu('yeni');
   };
 
+  const handleJsonImport = async () => {
+    try {
+      const products = JSON.parse(jsonInput);
+      
+      // Her ürün için ayrı request gönder
+      for (const product of products) {
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/kokular`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(product),
+        });
+
+        if (!response.ok) {
+          throw new Error(`${product.isim} eklenirken hata oluştu`);
+        }
+      }
+
+      toast.success('Ürünler başarıyla eklendi');
+      setJsonInput('');
+      kokulariGetir(); // Listeyi yenile
+    } catch (error) {
+      toast.error('JSON formatı hatalı veya ürünler eklenemedi');
+      console.error('Hata:', error);
+    }
+  };
+
   if (yukleniyor) {
     return (
       <div className="flex justify-center items-center min-h-screen">
@@ -419,133 +448,133 @@ export default function AdminPage() {
   }
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       {/* Üst Araç Çubuğu */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 space-y-4 sm:space-y-0">
         <div className="flex items-center space-x-4">
-          <input
-            type="text"
-            placeholder="Koku ara..."
+              <input
+                type="text"
+                placeholder="Koku ara..."
             value={filtreKelime}
             onChange={(e) => setFiltreKelime(e.target.value)}
             className="px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-black"
           />
-          <button
+            <button
             onClick={tumunuSec}
             className="px-4 py-2 bg-gray-100 text-gray-800 rounded-lg hover:bg-gray-200"
-          >
-            {seciliKokular.length === kokular.length ? 'Seçimi Kaldır' : 'Tümünü Seç'}
-          </button>
-          {seciliKokular.length > 0 && (
-            <button
-              onClick={secilenleriSil}
-              className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
             >
-              Seçilenleri Sil ({seciliKokular.length})
+            {seciliKokular.length === kokular.length ? 'Seçimi Kaldır' : 'Tümünü Seç'}
             </button>
-          )}
-        </div>
-        <button
+            {seciliKokular.length > 0 && (
+              <button
+                onClick={secilenleriSil}
+              className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
+              >
+              Seçilenleri Sil ({seciliKokular.length})
+              </button>
+            )}
+          </div>
+          <button
           onClick={yeniKokuOlustur}
           className="px-4 py-2 bg-black text-white rounded-lg hover:bg-gray-900"
-        >
+          >
           Yeni Koku Ekle
-        </button>
-      </div>
+          </button>
+        </div>
 
       {/* Kokular Tablosu */}
       <div className="bg-white rounded-lg shadow overflow-x-auto">
-        <table className="min-w-full divide-y divide-gray-200">
-          <thead className="bg-gray-50">
-            <tr>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                <input
-                  type="checkbox"
-                  checked={seciliKokular.length === kokular.length}
-                  onChange={tumunuSec}
+          <table className="min-w-full divide-y divide-gray-200">
+            <thead className="bg-gray-50">
+              <tr>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <input
+                    type="checkbox"
+                    checked={seciliKokular.length === kokular.length}
+                    onChange={tumunuSec}
                   className="h-4 w-4 text-black focus:ring-black border-gray-300 rounded"
-                />
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  />
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                 Fotoğraf
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                 İsim
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Kategori
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Fiyat
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Stok
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                İşlemler
-              </th>
-            </tr>
-          </thead>
-          <tbody className="bg-white divide-y divide-gray-200">
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Kategori
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Fiyat
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Stok
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  İşlemler
+                </th>
+              </tr>
+            </thead>
+            <tbody className="bg-white divide-y divide-gray-200">
             {filtrelenmisKokular.map((koku) => (
-              <tr key={koku.id} className="hover:bg-gray-50">
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <input
-                    type="checkbox"
-                    checked={seciliKokular.includes(koku.id)}
-                    onChange={() => kokuSec(koku.id)}
+                  <tr key={koku.id} className="hover:bg-gray-50">
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <input
+                        type="checkbox"
+                        checked={seciliKokular.includes(koku.id)}
+                        onChange={() => kokuSec(koku.id)}
                     className="h-4 w-4 text-black focus:ring-black border-gray-300 rounded"
-                  />
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap">
+                      />
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
                   <div className="relative h-16 w-16">
-                    <Image
+                          <Image
                       src={koku.ana_fotograf}
-                      alt={koku.isim}
+                            alt={koku.isim}
                       fill
                       className="object-cover rounded-lg"
-                    />
-                  </div>
+                          />
+                        </div>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap">
                   <div className="text-sm font-medium text-gray-900">{koku.isim}</div>
                   <div className="text-sm text-gray-500">{koku.hacim}</div>
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-100 text-gray-800">
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-100 text-gray-800">
                     {koku.kategori}
-                  </span>
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                      </span>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                   {(koku.fiyat || 0).toLocaleString('tr-TR')} ₺
-                </td>
+                    </td>
                 <td className="px-6 py-4 whitespace-nowrap">
                   <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
                     koku.stok > 5 ? 'bg-green-100 text-green-800' : 
                     koku.stok > 0 ? 'bg-yellow-100 text-yellow-800' : 
                     'bg-red-100 text-red-800'
                   }`}>
-                    {koku.stok}
+                      {koku.stok}
                   </span>
-                </td>
+                    </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
-                  <button
+                      <button
                     onClick={() => kokuDuzenle(koku)}
                     className="text-black hover:text-gray-900"
-                  >
+                      >
                     Düzenle
-                  </button>
-                  <button
+                      </button>
+                      <button
                     onClick={() => fotografSil(koku.id, koku.ana_fotograf)}
-                    className="text-red-600 hover:text-red-900"
-                  >
+                        className="text-red-600 hover:text-red-900"
+                      >
                     Sil
-                  </button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+            </tbody>
+          </table>
       </div>
 
       {/* Düzenleme/Ekleme Modalı */}
@@ -735,9 +764,28 @@ export default function AdminPage() {
                 </button>
               </div>
             </form>
-          </div>
         </div>
+      </div>
       )}
+
+      {/* JSON ile Ürün Ekleme */}
+      <div className="mt-8 bg-white p-6 rounded-lg shadow">
+        <h2 className="text-2xl font-semibold mb-4">JSON ile Ürün Ekle</h2>
+        <div className="space-y-4">
+          <textarea
+            value={jsonInput}
+            onChange={(e) => setJsonInput(e.target.value)}
+            placeholder="Ürün verilerini JSON formatında yapıştırın..."
+            className="w-full h-64 p-4 border rounded-lg font-mono text-sm"
+          />
+          <button
+            onClick={handleJsonImport}
+            className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors"
+          >
+            JSON'dan Ürünleri Ekle
+          </button>
+        </div>
+      </div>
     </div>
   );
 } 
