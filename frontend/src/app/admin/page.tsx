@@ -87,7 +87,7 @@ export default function AdminPage() {
         return;
       }
 
-      const response = await fetch('http://localhost:8080/api/admin/kokular', {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/admin/kokular`, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
@@ -369,7 +369,7 @@ export default function AdminPage() {
       }));
 
       // Koku bilgilerini güncelle
-      const response = await fetch(`http://localhost:8080/api/admin/kokular/${kokuId}`, {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/admin/kokular/${kokuId}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -540,7 +540,7 @@ export default function AdminPage() {
       formData.append('file', file);
       formData.append('folder', 'products');
 
-      const response = await fetch('http://localhost:8080/api/admin/upload', {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/admin/upload`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`
@@ -583,7 +583,7 @@ export default function AdminPage() {
       toast.success('Fotoğraf başarıyla yüklendi');
 
       // Fotoğrafları sunucuda güncelle
-      const updateResponse = await fetch(`http://localhost:8080/api/admin/kokular/${seciliKoku.id}`, {
+      const updateResponse = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/admin/kokular/${seciliKoku.id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -638,7 +638,7 @@ export default function AdminPage() {
       };
 
       // Sunucuya güncelleme isteği gönder
-      const response = await fetch(`http://localhost:8080/api/admin/kokular/${seciliKoku.id}`, {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/admin/kokular/${seciliKoku.id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -701,8 +701,8 @@ export default function AdminPage() {
       console.log('Gönderilen veri:', kokuData);
 
       const url = duzenlemeModu === 'duzenle'
-        ? `http://localhost:8080/api/admin/kokular/${seciliKoku.id}`
-        : 'http://localhost:8080/api/admin/kokular';
+        ? `${process.env.NEXT_PUBLIC_API_URL}/admin/kokular/${seciliKoku.id}`
+        : `${process.env.NEXT_PUBLIC_API_URL}/admin/kokular`;
 
       const response = await fetch(url, {
         method: duzenlemeModu === 'duzenle' ? 'PUT' : 'POST',
