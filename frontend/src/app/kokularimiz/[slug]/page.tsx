@@ -31,6 +31,12 @@ interface Koku {
   hacim: string;
 }
 
+interface PageProps {
+  params: {
+    slug: string;
+  };
+}
+
 // Loading komponenti
 function ImageLoadingSkeleton() {
   return (
@@ -150,7 +156,7 @@ async function getKokuData(slug: string) {
   }
 }
 
-export default function UrunDetayContent({ params }: { params: { slug: string } }) {
+export default function UrunDetayContent({ params }: PageProps) {
   const [koku, setKoku] = useState<Koku | null>(null);
   const [yukleniyor, setYukleniyor] = useState(true);
   const [hata, setHata] = useState<string | null>(null);
@@ -162,7 +168,13 @@ export default function UrunDetayContent({ params }: { params: { slug: string } 
       try {
         setYukleniyor(true);
         setHata(null);
-        const data = await getKokuData(params.slug);
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/koku/${params.slug}`);
+        
+        if (!response.ok) {
+          throw new Error('Koku bulunamadı');
+        }
+
+        const data = await response.json();
         setKoku(data);
       } catch (error) {
         console.error('Veri getirme hatası:', error);
@@ -173,7 +185,9 @@ export default function UrunDetayContent({ params }: { params: { slug: string } 
       }
     }
 
-    kokuGetir();
+    if (params.slug) {
+      kokuGetir();
+    }
   }, [params.slug]);
 
   if (yukleniyor) {
