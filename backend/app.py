@@ -215,5 +215,38 @@ def sirala_fotograflar(id):
         app.logger.error(f'Fotoğraf sıralama hatası: {str(e)}')
         return jsonify({"error": str(e)}), 500
 
+@app.route('/api/koku', methods=['GET'])
+def get_all_kokular():
+    try:
+        # Sadece gerekli alanları getir
+        projection = {
+            "isim": 1,
+            "slug": 1,
+            "fiyat": 1,
+            "ana_fotograf": 1,
+            "kategori": 1,
+            "hacim": 1
+        }
+        kokular = list(kokular_collection.find({}, projection))
+        kokular_json = [koku_to_json(koku) for koku in kokular]
+        app.logger.info(f'{len(kokular_json)} koku başarıyla getirildi (optimize edilmiş)')
+        return jsonify({"kokular": kokular_json}), 200
+    except Exception as e:
+        app.logger.error(f'Kokuları getirme hatası: {str(e)}')
+        return jsonify({"error": str(e)}), 500
+
+@app.route('/api/koku/<slug>', methods=['GET'])
+def get_single_koku(slug):
+    try:
+        koku = kokular_collection.find_one({"slug": slug})
+        if koku:
+            app.logger.info(f'Koku başarıyla getirildi: {slug}')
+            return jsonify(koku_to_json(koku)), 200
+        app.logger.warning(f'Koku bulunamadı: {slug}')
+        return jsonify({"error": "Koku bulunamadı"}), 404
+    except Exception as e:
+        app.logger.error(f'Koku getirme hatası: {str(e)}')
+        return jsonify({"error": str(e)}), 500
+
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=8080) 

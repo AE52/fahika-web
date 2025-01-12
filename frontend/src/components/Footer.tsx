@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import Image from 'next/image';
+import { FaInstagram, FaWhatsapp } from 'react-icons/fa';
 
 export default function Footer() {
   return (
@@ -109,6 +110,24 @@ export default function Footer() {
         </div>
 
         <div className="mt-12 pt-8 border-t border-gray-100">
+          <div className="flex justify-center space-x-6 mb-4">
+            <a
+              href="https://instagram.com/fahikatr"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-gray-600 hover:text-pink-600 transition-colors"
+            >
+              <FaInstagram className="w-6 h-6" />
+            </a>
+            <a
+              href="https://wa.me/905322809511"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-gray-600 hover:text-green-600 transition-colors"
+            >
+              <FaWhatsapp className="w-6 h-6" />
+            </a>
+          </div>
           <p className="text-center text-gray-500 text-sm">
             © {new Date().getFullYear()} FAHİKA. Tüm hakları saklıdır.
           </p>

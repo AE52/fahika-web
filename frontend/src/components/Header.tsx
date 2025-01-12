@@ -94,7 +94,8 @@ export default function Header() {
               alt="Fahika Logo"
               width={120}
               height={40}
-              className="h-10 w-auto"
+              style={{ width: 'auto', height: '40px' }}
+              className="w-auto"
               priority
             />
           </Link>
@@ -107,7 +108,7 @@ export default function Header() {
           <Link href="/hakkimizda" className="text-gray-700 hover:text-gray-900">
             Hakkımızda
           </Link>
-          <Link href="/kokular" className="text-gray-700 hover:text-gray-900">
+          <Link href="/" className="text-gray-700 hover:text-gray-900">
             Kokularımız
           </Link>
           <Link href="/iletisim" className="text-gray-700 hover:text-gray-900">
@@ -181,7 +182,7 @@ export default function Header() {
               </li>
               <li>
                 <Link 
-                  href="/kokular" 
+                  href="/" 
                   className="block px-4 py-2 text-gray-700 hover:bg-gray-100"
                   onClick={() => setIsMenuOpen(false)}
                 >
@@ -350,7 +351,7 @@ export default function Header() {
                 <button
                   onClick={() => {
                     const message = createWhatsAppMessage(cart);
-                    window.open(`https://wa.me/905555555555?text=${message}`, '_blank');
+                    window.open(`https://wa.me/905322809511?text=${message}`, '_blank');
                     setIsCartOpen(false);
                   }}
                   className="w-full bg-green-500 text-white py-3 rounded-lg hover:bg-green-600 transition-colors flex items-center justify-center space-x-2"
@@ -366,7 +367,7 @@ export default function Header() {
 
       {/* WhatsApp Widget */}
       <a
-        href="https://wa.me/905555555555"
+        href="https://wa.me/905322809511"
         target="_blank"
         rel="noopener noreferrer"
         className="fixed bottom-6 right-6 z-40 bg-green-500 text-white p-4 rounded-full shadow-lg hover:bg-green-600 transition-colors"

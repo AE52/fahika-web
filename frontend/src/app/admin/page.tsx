@@ -643,10 +643,11 @@ export default function AdminPage() {
                   required
                 >
                   <option value="">Kategori Seçin</option>
+                  <option value="vucut-spreyi">Çubuklu Oda Kokuları</option>
                   <option value="parfum">Parfüm</option>
                   <option value="oda-kokusu">Oda Kokusu</option>
                   <option value="deodorant">Deodorant</option>
-                  <option value="vucut-spreyi">Vücut Spreyi</option>
+                  <option value="vucut-spreyi">Araba Kokuları</option>
                 </select>
               </div>
 
