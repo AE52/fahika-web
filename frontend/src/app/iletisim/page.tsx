@@ -1,35 +1,18 @@
 'use client';
 
-import { useState } from 'react';
-import { toast } from 'react-hot-toast';
 import Image from 'next/image';
+import { FaWhatsapp } from 'react-icons/fa';
 
 export default function IletisimPage() {
-  const [formData, setFormData] = useState({
-    isim: '',
-    email: '',
-    telefon: '',
-    mesaj: ''
-  });
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    try {
-      // Form gönderme işlemi burada yapılacak
-      toast.success('Mesajınız başarıyla gönderildi.');
-      setFormData({ isim: '', email: '', telefon: '', mesaj: '' });
-    } catch (error) {
-      toast.error('Mesajınız gönderilemedi. Lütfen tekrar deneyin.');
-    }
+  const handleWhatsApp = () => {
+    window.open('https://wa.me/905322809511', '_blank');
   };
 
   return (
     <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 py-12">
       <h1 className="text-3xl font-medium text-gray-900 mb-8">İletişim</h1>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
-        {/* İletişim Bilgileri */}
+      
+      <div className="max-w-2xl">
         <div className="space-y-6">
           <div className="prose prose-lg">
             <p>
@@ -58,6 +41,15 @@ export default function IletisimPage() {
                 iletisim@fahika.com
               </p>
             </div>
+            <div className="flex items-center space-x-3">
+              <FaWhatsapp className="w-5 h-5 text-green-500" />
+              <button 
+                onClick={handleWhatsApp}
+                className="text-sm text-gray-600 hover:text-green-500 transition-colors"
+              >
+                WhatsApp ile İletişime Geç
+              </button>
+            </div>
           </div>
 
           <div className="prose prose-lg">
@@ -67,73 +59,6 @@ export default function IletisimPage() {
               Pazar: Kapalı
             </p>
           </div>
-        </div>
-
-        {/* İletişim Formu */}
-        <div>
-          <form onSubmit={handleSubmit} className="space-y-6">
-            <div>
-              <label htmlFor="isim" className="block text-sm font-medium text-gray-700">
-                İsim Soyisim
-              </label>
-              <input
-                type="text"
-                id="isim"
-                value={formData.isim}
-                onChange={(e) => setFormData({ ...formData, isim: e.target.value })}
-                className="mt-1 block w-full border-gray-300 rounded-none shadow-sm focus:ring-black focus:border-black sm:text-sm"
-                required
-              />
-            </div>
-
-            <div>
-              <label htmlFor="email" className="block text-sm font-medium text-gray-700">
-                E-posta
-              </label>
-              <input
-                type="email"
-                id="email"
-                value={formData.email}
-                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                className="mt-1 block w-full border-gray-300 rounded-none shadow-sm focus:ring-black focus:border-black sm:text-sm"
-                required
-              />
-            </div>
-
-            <div>
-              <label htmlFor="telefon" className="block text-sm font-medium text-gray-700">
-                Telefon
-              </label>
-              <input
-                type="tel"
-                id="telefon"
-                value={formData.telefon}
-                onChange={(e) => setFormData({ ...formData, telefon: e.target.value })}
-                className="mt-1 block w-full border-gray-300 rounded-none shadow-sm focus:ring-black focus:border-black sm:text-sm"
-              />
-            </div>
-
-            <div>
-              <label htmlFor="mesaj" className="block text-sm font-medium text-gray-700">
-                Mesajınız
-              </label>
-              <textarea
-                id="mesaj"
-                rows={4}
-                value={formData.mesaj}
-                onChange={(e) => setFormData({ ...formData, mesaj: e.target.value })}
-                className="mt-1 block w-full border-gray-300 rounded-none shadow-sm focus:ring-black focus:border-black sm:text-sm"
-                required
-              />
-            </div>
-
-            <button
-              type="submit"
-              className="w-full bg-black text-white py-3 px-4 text-sm font-medium hover:bg-gray-900 transition-colors"
-            >
-              Gönder
-            </button>
-          </form>
         </div>
       </div>
     </div>
